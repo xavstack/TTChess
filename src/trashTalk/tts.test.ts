@@ -8,10 +8,10 @@ const mockSynth = {
   speak: vi.fn(),
 };
 
-// @ts-expect-error
-globalThis.speechSynthesis = mockSynth;
-// @ts-expect-error
-globalThis.SpeechSynthesisUtterance = function(this: any, text: string) { this.text = text; } as any;
+// @ts-ignore
+(globalThis as any).speechSynthesis = mockSynth;
+// @ts-ignore
+(globalThis as any).SpeechSynthesisUtterance = function(this: any, text: string) { this.text = text; } as any;
 
 describe('tts', () => {
   beforeEach(() => {

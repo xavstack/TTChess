@@ -3,7 +3,7 @@ import { Chess, type Move, type Square } from 'chess.js';
 import { selectTrashTalk, type EffectiveTone } from '../trashTalk/selector';
 import { speak, cancelSpeech } from '../trashTalk/tts';
 import { toDatasetPiece } from '../utils/pieces';
-import { Engine, PRESETS, type Difficulty } from '../engine/engine';
+import { Engine, type Difficulty } from '../engine/engine';
 
 export type UiMove = { from: Square; to: Square; san: string; piece: string; capture?: boolean; check?: boolean };
 

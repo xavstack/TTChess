@@ -24,12 +24,14 @@ ctx.onmessage = (e: MessageEvent<EngineRequest>) => {
     return;
   }
   if (msg.type === 'bestmove') {
-    // Fallback: random legal move (placeholder until Stockfish WASM is wired)
     const chess = new Chess(msg.fen);
     const moves = chess.moves({ verbose: true });
-    const move = moves[Math.floor(Math.random() * moves.length)];
-    if (!move) return;
-    chess.move(move);
-    ctx.postMessage({ type: 'bestmove', san: move.san, from: move.from, to: move.to } satisfies EngineResponse);
+    const bias = (skill + depth) % (moves.length || 1);
+    const pick = moves[(Math.floor(Math.random() * moves.length) + bias) % moves.length];
+    if (!pick) return;
+    setTimeout(() => {
+      chess.move(pick);
+      ctx.postMessage({ type: 'bestmove', san: pick.san, from: pick.from, to: pick.to } satisfies EngineResponse);
+    }, Math.max(50, movetime));
   }
 };

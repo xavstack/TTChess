@@ -1,4 +1,4 @@
-import React from 'react';
+import type { JSX } from 'react';
 import AppShell from './components/Layout/AppShell';
 import ChessBoard from './components/Board/ChessBoard';
 import './index.css';

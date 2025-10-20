@@ -1,4 +1,5 @@
-import React, { useRef } from 'react';
+import type { JSX } from 'react';
+import { useRef } from 'react';
 import { useGameStore } from '../../store/gameStore';
 
 function formatMs(ms: number): string {
@@ -10,7 +11,7 @@ function formatMs(ms: number): string {
 
 export function AppShell({ children }: { children: React.ReactNode }): JSX.Element {
   const {
-    tone, setTone, lastTaunt, difficulty, setDifficulty, chess,
+    tone, setTone, lastTaunt, difficulty, setDifficulty,
     timeWhiteMs, timeBlackMs, toggleFlip, exportPgn, importPgn,
   } = useGameStore();
   const fileRef = useRef<HTMLInputElement>(null);

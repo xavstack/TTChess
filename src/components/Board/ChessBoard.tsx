@@ -1,4 +1,5 @@
-import React, { useMemo } from 'react';
+import type { JSX } from 'react';
+import { useMemo } from 'react';
 import { useGameStore } from '../../store/gameStore';
 import { pieceToUnicode } from '../../utils/pieces';
 import { motion, AnimatePresence } from 'framer-motion';
