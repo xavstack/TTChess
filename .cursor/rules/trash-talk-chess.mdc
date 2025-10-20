@@ -1,17 +1,6 @@
-Description: Keep the agent fully autonomous, file-safe, test-first, and on-scope for Trash-Talk Chess.
-
-globs:
-  - "src/**/*"
-  - "public/**/*"
-  - "package.json"
-  - "vite.config.*"
-  - "README.md"
-  - "PLAN.md"
-  - "TRACK.md"
-  - "DECISIONS.md"
-  - "CONTRIBUTING.md"
 ---
-
+alwaysApply: true
+---
 ## Agent Ground Rules
 - Always run in Auto-Run for terminal; apply code edits without asking. Show a short patch summary only.
 - Commit locally often with conventional commit messages. Never push.
