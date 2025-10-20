@@ -5,7 +5,20 @@ html, body, #root {
   height: 100%;
 }
 
-/* Theme base: default to system with class override */
 :root {
   color-scheme: light dark;
+  --board-dark: #769656;
+  --board-light: #eeeed2;
+  --accent: #22d3ee;
 }
+
+.high-contrast {
+  --board-dark: #222222;
+  --board-light: #ffffff;
+  --accent: #ef4444;
+}
+
+/* Utility classes to map variables */
+.fill-board-dark { fill: var(--board-dark); }
+.fill-board-light { fill: var(--board-light); }
+.fill-accent { fill: var(--accent); }

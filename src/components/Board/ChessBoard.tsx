@@ -46,7 +46,7 @@ export function ChessBoard(): JSX.Element {
                 }
               }}>
                 <rect x={fileIdx} y={rankIdx} width={1} height={1}
-                  className={isSel ? 'fill-[#22d3ee]' : isDark(fileIdx, rankIdx) ? 'fill-[#769656]' : 'fill-[#eeeed2]'} />
+                  className={isSel ? 'fill-accent' : isDark(fileIdx, rankIdx) ? 'fill-board-dark' : 'fill-board-light'} />
                 {isTarget && (
                   <circle cx={fileIdx + 0.5} cy={rankIdx + 0.5} r={0.12} className="fill-black/40" />
                 )}
