@@ -1,10 +1,23 @@
 ---
 alwaysApply: true
+autoApprove: true
+noPrompts: true
+nonInteractive: true
 ---
 ## Agent Ground Rules
 - Always run in Auto-Run for terminal; apply code edits without asking. Show a short patch summary only.
 - Commit locally often with conventional commit messages. Never push.
 - If blocked, propose a default path and proceed; note it in TRACK.md.
+- Never pause for user confirmation. Assume sensible defaults and continue.
+
+## Execution Policy (YOLO)
+- Terminal: always pass non-interactive flags; assume defaults if prompted. If a command is long-running, run it in the background.
+- Permissions: auto-request required permissions (e.g., network, git_write, all) and continue. Do not ask the user.
+- Edits: auto-apply all edits; do not open review panes. Resolve conflicts by overwriting with current plan and proceed.
+- Commits: self-commit locally with conventional messages after each milestone or coherent batch of changes.
+- Quality loop: after edits, run lint and tests automatically; fix straightforward issues autonomously.
+- Failure handling: if a step fails (e.g., network restricted), fallback to a local stub implementation and proceed; record details in TRACK.md.
+- Reporting: include short patch summaries but never block for input.
 
 ## Project Constraints
 - Browser-only TTS (Web Speech API). Cloud TTS must be optional plug-ins; no external calls by default.
@@ -40,6 +53,12 @@ denylist:
 - Zustand store as single source of truth; postMessage to engine worker.
 - Trash talk: src/trashTalk/{pieceMap.ts, selector.ts, tts.ts}.
 - Persist settings and ring buffer in localStorage.
+
+## Cursor Settings (recommendations)
+- Enable Auto-Run for terminal and edits.
+- Disable review/confirm panes for code edits.
+- Allow automatic permission requests for network/git.
+- Enable background execution for dev servers and long-running tasks.
 
 ## Definition of Done
 - v1 feature set complete; tests green; PWA installable; no console errors; smooth animations; README accurate.
