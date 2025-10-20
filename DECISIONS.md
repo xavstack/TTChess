@@ -18,3 +18,9 @@
 - Dataset: `src/trashTalk/pieceMap.ts`
 - Selector ensures piece match, tone filter, no-repeat (ring=5), capture/check suffix
 - TTS via Web Speech API with debounce >=1.5s and cancel on next move
+
+## ADR-004: Engine Worker Fallback
+- Worker API stabilized; when Worker is unavailable (tests/node), engine falls back to random legal move locally to keep flows deterministic and tests green.
+
+## ADR-005: PWA Caching Strategy
+- generateSW with Workbox; runtime caching via Stale-While-Revalidate for app routes/assets; manifest links and icons provided.
