@@ -17,34 +17,40 @@ export function AppShell({ children }: { children: React.ReactNode }): JSX.Eleme
   const fileRef = useRef<HTMLInputElement>(null);
 
   return (
-    <div className="min-h-screen w-full grid grid-cols-1 md:grid-cols-[minmax(260px,320px)_1fr_minmax(260px,320px)] gap-4 p-4">
-      <aside className="order-2 md:order-1 bg-white/60 dark:bg-black/40 rounded-md p-3 border">
-        <div className="font-semibold mb-2">Settings</div>
-        <label className="block text-sm mb-1">Trash Talk Tone</label>
-        <select
-          className="w-full rounded border bg-white dark:bg-black p-2 mb-3"
-          value={tone}
-          onChange={(e) => setTone(e.target.value as any)}>
-          <option value="off">Off</option>
-          <option value="pg13">PG-13</option>
-          <option value="spicy">Spicy</option>
-        </select>
+    <div className="min-h-screen w-full flex flex-col md:grid md:grid-cols-[minmax(260px,320px)_1fr_minmax(260px,320px)] gap-2 md:gap-4 p-2 md:p-4">
+      <aside className="order-1 md:order-1 bg-white/60 dark:bg-black/40 rounded-md p-3 border mb-2 md:mb-0">
+        <div className="font-semibold mb-2 text-sm md:text-base">Settings</div>
+        <div className="space-y-2">
+          <div>
+            <label className="block text-xs md:text-sm mb-1">Trash Talk Tone</label>
+            <select
+              className="w-full rounded border bg-white dark:bg-black p-1.5 md:p-2 text-xs md:text-sm"
+              value={tone}
+              onChange={(e) => setTone(e.target.value as any)}>
+              <option value="off">Off</option>
+              <option value="pg13">PG-13</option>
+              <option value="spicy">Spicy</option>
+            </select>
+          </div>
 
-        <label className="block text-sm mb-1">AI Difficulty</label>
-        <select
-          className="w-full rounded border bg-white dark:bg-black p-2 mb-3"
-          value={difficulty}
-          onChange={(e) => setDifficulty(e.target.value as any)}>
-          <option>Beginner</option>
-          <option>Casual</option>
-          <option>Challenging</option>
-          <option>Hard</option>
-          <option>Insane</option>
-        </select>
+          <div>
+            <label className="block text-xs md:text-sm mb-1">AI Difficulty</label>
+            <select
+              className="w-full rounded border bg-white dark:bg-black p-1.5 md:p-2 text-xs md:text-sm"
+              value={difficulty}
+              onChange={(e) => setDifficulty(e.target.value as any)}>
+              <option>Beginner</option>
+              <option>Casual</option>
+              <option>Challenging</option>
+              <option>Hard</option>
+              <option>Insane</option>
+            </select>
+          </div>
+        </div>
 
-        <div className="mt-3 space-y-2">
+        <div className="mt-3 space-y-1.5">
           <button
-            className="w-full rounded border p-2 text-sm"
+            className="w-full rounded border p-1.5 md:p-2 text-xs md:text-sm bg-blue-50 dark:bg-blue-900/20 hover:bg-blue-100 dark:hover:bg-blue-900/40"
             onClick={() => {
               const pgn = exportPgn();
               const blob = new Blob([pgn], { type: 'text/plain' });
@@ -61,49 +67,51 @@ export function AppShell({ children }: { children: React.ReactNode }): JSX.Eleme
             const text = await file.text();
             importPgn(text);
           }} />
-          <button className="w-full rounded border p-2 text-sm" onClick={() => fileRef.current?.click()}>
+          <button className="w-full rounded border p-1.5 md:p-2 text-xs md:text-sm bg-green-50 dark:bg-green-900/20 hover:bg-green-100 dark:hover:bg-green-900/40" onClick={() => fileRef.current?.click()}>
             Import PGN
           </button>
-          <button className="w-full rounded border p-2 text-sm" onClick={() => useGameStore.getState().undoPair()}>
+          <button className="w-full rounded border p-1.5 md:p-2 text-xs md:text-sm bg-yellow-50 dark:bg-yellow-900/20 hover:bg-yellow-100 dark:hover:bg-yellow-900/40" onClick={() => useGameStore.getState().undoPair()}>
             Undo Pair
           </button>
-          <button className="w-full rounded border p-2 text-sm" onClick={() => toggleFlip()}>
+          <button className="w-full rounded border p-1.5 md:p-2 text-xs md:text-sm bg-purple-50 dark:bg-purple-900/20 hover:bg-purple-100 dark:hover:bg-purple-900/40" onClick={() => toggleFlip()}>
             Flip Board
           </button>
         </div>
 
-        <div className="grid grid-cols-2 gap-2 mt-3">
+        <div className="grid grid-cols-2 gap-1.5 mt-3">
           <button
-            className="rounded border p-2 text-sm"
+            className="rounded border p-1.5 md:p-2 text-xs md:text-sm bg-gray-50 dark:bg-gray-800 hover:bg-gray-100 dark:hover:bg-gray-700"
             onClick={() => {
-              document.documentElement.classList.toggle('dark');
+              const isDark = document.documentElement.classList.toggle('dark');
+              localStorage.setItem('ttc_theme_v1', isDark ? 'dark' : 'light');
             }}>
             Toggle Theme
           </button>
           <button
-            className="rounded border p-2 text-sm"
+            className="rounded border p-1.5 md:p-2 text-xs md:text-sm bg-orange-50 dark:bg-orange-900/20 hover:bg-orange-100 dark:hover:bg-orange-900/40"
             onClick={() => {
-              document.documentElement.classList.toggle('high-contrast');
+              const isHighContrast = document.documentElement.classList.toggle('high-contrast');
+              localStorage.setItem('ttc_high_contrast_v1', isHighContrast ? 'true' : 'false');
             }}>
             High Contrast
           </button>
         </div>
       </aside>
 
-      <main className="order-1 md:order-2 flex items-center justify-center">
+      <main className="order-2 md:order-2 flex items-center justify-center flex-1 min-h-0">
         {children}
       </main>
 
-      <aside className="order-3 bg-white/60 dark:bg-black/40 rounded-md p-3 border flex flex-col">
-        <div className="font-semibold mb-2">Clocks</div>
-        <div className="grid grid-cols-2 gap-2 text-center text-sm mb-4">
-          <div className="rounded border p-2">You: {formatMs(timeWhiteMs)}</div>
-          <div className="rounded border p-2">AI: {formatMs(timeBlackMs)}</div>
+      <aside className="order-3 bg-white/60 dark:bg-black/40 rounded-md p-3 border flex flex-col mt-2 md:mt-0">
+        <div className="font-semibold mb-2 text-sm md:text-base">Clocks</div>
+        <div className="grid grid-cols-2 gap-1.5 md:gap-2 text-center text-xs md:text-sm mb-3 md:mb-4">
+          <div className="rounded border p-1.5 md:p-2 bg-blue-50 dark:bg-blue-900/20">You: {formatMs(timeWhiteMs)}</div>
+          <div className="rounded border p-1.5 md:p-2 bg-red-50 dark:bg-red-900/20">AI: {formatMs(timeBlackMs)}</div>
         </div>
-        <div className="font-semibold mb-2">Avatar</div>
+        <div className="font-semibold mb-2 text-sm md:text-base">Avatar</div>
         <div className="mt-auto">
-          <div className="text-sm opacity-70 mb-1">Trash Talk</div>
-          <div className="rounded-md border p-3 min-h-[64px] bg-white dark:bg-black">
+          <div className="text-xs md:text-sm opacity-70 mb-1">Trash Talk</div>
+          <div className="rounded-md border p-2 md:p-3 min-h-[48px] md:min-h-[64px] bg-white dark:bg-black text-xs md:text-sm">
             {lastTaunt ?? '…'}
           </div>
         </div>

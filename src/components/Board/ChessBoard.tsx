@@ -21,7 +21,7 @@ export function ChessBoard(): JSX.Element {
   const board = useMemo(() => chess.board(), [chess, boardVersion]);
 
   return (
-    <div className="w-full max-w-[min(90vw,650px)] aspect-square">
+    <div className="board-viewport">
       <svg viewBox="0 0 8 8" className="w-full h-full">
         {Array.from({ length: 8 }).map((_, rankIdx) => (
           Array.from({ length: 8 }).map((_, fileIdx) => {
