@@ -1,8 +1,18 @@
 import React, { useRef } from 'react';
 import { useGameStore } from '../../store/gameStore';
 
+function formatMs(ms: number): string {
+  const s = Math.floor(ms / 1000);
+  const m = Math.floor(s / 60);
+  const r = s % 60;
+  return `${String(m).padStart(2, '0')}:${String(r).padStart(2, '0')}`;
+}
+
 export function AppShell({ children }: { children: React.ReactNode }): JSX.Element {
-  const { tone, setTone, lastTaunt, difficulty, setDifficulty, chess } = useGameStore();
+  const {
+    tone, setTone, lastTaunt, difficulty, setDifficulty, chess,
+    timeWhiteMs, timeBlackMs, toggleFlip, exportPgn, importPgn,
+  } = useGameStore();
   const fileRef = useRef<HTMLInputElement>(null);
 
   return (
@@ -35,7 +45,7 @@ export function AppShell({ children }: { children: React.ReactNode }): JSX.Eleme
           <button
             className="w-full rounded border p-2 text-sm"
             onClick={() => {
-              const pgn = chess.pgn();
+              const pgn = exportPgn();
               const blob = new Blob([pgn], { type: 'text/plain' });
               const a = document.createElement('a');
               a.href = URL.createObjectURL(blob);
@@ -48,22 +58,15 @@ export function AppShell({ children }: { children: React.ReactNode }): JSX.Eleme
             const file = e.target.files?.[0];
             if (!file) return;
             const text = await file.text();
-            chess.reset();
-            chess.loadPgn(text);
+            importPgn(text);
           }} />
           <button className="w-full rounded border p-2 text-sm" onClick={() => fileRef.current?.click()}>
             Import PGN
           </button>
-          <button className="w-full rounded border p-2 text-sm" onClick={() => {
-            // Undo pair: undo two plies if possible
-            chess.undo();
-            chess.undo();
-          }}>
+          <button className="w-full rounded border p-2 text-sm" onClick={() => useGameStore.getState().undoPair()}>
             Undo Pair
           </button>
-          <button className="w-full rounded border p-2 text-sm" onClick={() => {
-            document.documentElement.classList.toggle('rotate-180');
-          }}>
+          <button className="w-full rounded border p-2 text-sm" onClick={() => toggleFlip()}>
             Flip Board
           </button>
         </div>
@@ -82,12 +85,12 @@ export function AppShell({ children }: { children: React.ReactNode }): JSX.Eleme
       </main>
 
       <aside className="order-3 bg-white/60 dark:bg-black/40 rounded-md p-3 border flex flex-col">
-        <div className="font-semibold mb-2">Avatar</div>
-        <div className="text-sm opacity-70 mb-2">Clocks (placeholder)</div>
-        <div className="grid grid-cols-2 gap-2 text-center text-xs mb-4">
-          <div className="rounded border p-2">You: 05:00</div>
-          <div className="rounded border p-2">AI: 05:00</div>
+        <div className="font-semibold mb-2">Clocks</div>
+        <div className="grid grid-cols-2 gap-2 text-center text-sm mb-4">
+          <div className="rounded border p-2">You: {formatMs(timeWhiteMs)}</div>
+          <div className="rounded border p-2">AI: {formatMs(timeBlackMs)}</div>
         </div>
+        <div className="font-semibold mb-2">Avatar</div>
         <div className="mt-auto">
           <div className="text-sm opacity-70 mb-1">Trash Talk</div>
           <div className="rounded-md border p-3 min-h-[64px] bg-white dark:bg-black">
