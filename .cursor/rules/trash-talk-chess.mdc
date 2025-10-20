@@ -1,0 +1,56 @@
+Description: Keep the agent fully autonomous, file-safe, test-first, and on-scope for Trash-Talk Chess.
+
+globs:
+  - "src/**/*"
+  - "public/**/*"
+  - "package.json"
+  - "vite.config.*"
+  - "README.md"
+  - "PLAN.md"
+  - "TRACK.md"
+  - "DECISIONS.md"
+  - "CONTRIBUTING.md"
+---
+
+## Agent Ground Rules
+- Always run in Auto-Run for terminal; apply code edits without asking. Show a short patch summary only.
+- Commit locally often with conventional commit messages. Never push.
+- If blocked, propose a default path and proceed; note it in TRACK.md.
+
+## Project Constraints
+- Browser-only TTS (Web Speech API). Cloud TTS must be optional plug-ins; no external calls by default.
+- Use Stockfish WASM via Web Worker. No native installs.
+- No external repos, services, or telemetry.
+
+## Quality Gates
+- Lint + format locally (eslint, prettier). Fail build on lint errors.
+- Vitest for units; RTL for components. Write tests first for critical paths:
+  - move legality sync, worker messaging, trash-talk selection (piece match, no repeat), TTS cancel/queue.
+- Lighthouse PWA: must be installable and offline-capable.
+
+## Security & Content
+- Taunt lines may be spicy but must avoid disallowed content (hate, identity attacks).
+- Provide "Off / PG-13 / Spicy" toggle; default PG-13.
+
+## Files You Must Maintain
+- PLAN.md — milestones with checkboxes; keep current.
+- TRACK.md — append progress notes each milestone.
+- DECISIONS.md — lightweight ADR entries.
+- CONTRIBUTING.md — run, test, build, release instructions.
+
+## Terminal Policy
+allowlist:
+  - node, npm, pnpm, npx, vite, tsc, eslint, prettier, vitest, playwright
+  - git init, git add, git commit, git log
+  - mkdir, rm -rf node_modules, mv, cp
+denylist:
+  - sudo, brew, apt, curl|sh, git push, rm -rf /
+
+## Implementation Hints
+- SVG board components for crisp scaling; framer-motion for micro-animations.
+- Zustand store as single source of truth; postMessage to engine worker.
+- Trash talk: src/trashTalk/{pieceMap.ts, selector.ts, tts.ts}.
+- Persist settings and ring buffer in localStorage.
+
+## Definition of Done
+- v1 feature set complete; tests green; PWA installable; no console errors; smooth animations; README accurate.
