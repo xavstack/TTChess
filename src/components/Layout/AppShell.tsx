@@ -71,13 +71,22 @@ export function AppShell({ children }: { children: React.ReactNode }): JSX.Eleme
           </button>
         </div>
 
-        <button
-          className="w-full rounded border p-2 text-sm mt-3"
-          onClick={() => {
-            document.documentElement.classList.toggle('dark');
-          }}>
-          Toggle Theme
-        </button>
+        <div className="grid grid-cols-2 gap-2 mt-3">
+          <button
+            className="rounded border p-2 text-sm"
+            onClick={() => {
+              document.documentElement.classList.toggle('dark');
+            }}>
+            Toggle Theme
+          </button>
+          <button
+            className="rounded border p-2 text-sm"
+            onClick={() => {
+              document.documentElement.classList.toggle('high-contrast');
+            }}>
+            High Contrast
+          </button>
+        </div>
       </aside>
 
       <main className="order-1 md:order-2 flex items-center justify-center">

@@ -10,6 +10,8 @@ const mockSynth = {
 
 // @ts-expect-error
 globalThis.speechSynthesis = mockSynth;
+// @ts-expect-error
+globalThis.SpeechSynthesisUtterance = function(this: any, text: string) { this.text = text; } as any;
 
 describe('tts', () => {
   beforeEach(() => {

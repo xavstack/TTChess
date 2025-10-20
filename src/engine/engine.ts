@@ -1,4 +1,5 @@
 import EngineWorker from './engineWorker.ts?worker';
+import { Chess } from 'chess.js';
 
 export type Difficulty = 'Beginner' | 'Casual' | 'Challenging' | 'Hard' | 'Insane';
 
@@ -11,28 +12,40 @@ export const PRESETS: Record<Difficulty, { skill: number; depth: number; movetim
 };
 
 export class Engine {
-  private worker: Worker;
+  private worker: Worker | null;
   private ready: Promise<void>;
 
   constructor(preset: Difficulty) {
     const { skill, depth, movetime } = PRESETS[preset];
-    this.worker = new EngineWorker();
-    this.ready = new Promise((resolve) => {
-      this.worker.onmessage = () => resolve();
-      this.worker.postMessage({ type: 'init', skill, depth, movetime });
-    });
+    if (typeof Worker !== 'undefined') {
+      this.worker = new (EngineWorker as any)();
+      this.ready = new Promise((resolve) => {
+        this.worker!.onmessage = () => resolve();
+        this.worker!.postMessage({ type: 'init', skill, depth, movetime });
+      });
+    } else {
+      this.worker = null;
+      this.ready = Promise.resolve();
+    }
   }
 
   async bestMove(fen: string): Promise<{ from: string; to: string; san: string }> {
     await this.ready;
+    if (!this.worker) {
+      // Fallback: pick a random legal move synchronously
+      const chess = new Chess(fen);
+      const moves = chess.moves({ verbose: true }) as any[];
+      const m = moves[Math.floor(Math.random() * moves.length)];
+      return { from: m.from, to: m.to, san: m.san };
+    }
     return new Promise((resolve) => {
-      this.worker.onmessage = (e: MessageEvent<any>) => {
+      this.worker!.onmessage = (e: MessageEvent<any>) => {
         const d = e.data;
         if (d.type === 'bestmove') {
           resolve({ from: d.from, to: d.to, san: d.san });
         }
       };
-      this.worker.postMessage({ type: 'bestmove', fen });
+      this.worker!.postMessage({ type: 'bestmove', fen });
     });
   }
 }
