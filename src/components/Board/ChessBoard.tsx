@@ -1,6 +1,7 @@
 import React, { useMemo } from 'react';
 import { useGameStore } from '../../store/gameStore';
 import { pieceToUnicode } from '../../utils/pieces';
+import { motion, AnimatePresence } from 'framer-motion';
 
 const files = ['a','b','c','d','e','f','g','h'] as const;
 const ranks = ['8','7','6','5','4','3','2','1'] as const;
@@ -47,11 +48,24 @@ export function ChessBoard(): JSX.Element {
                 {isTarget && (
                   <circle cx={fileIdx + 0.5} cy={rankIdx + 0.5} r={0.12} className="fill-black/40" />
                 )}
-                {piece && (
-                  <text x={fileIdx + 0.5} y={rankIdx + 0.68} textAnchor="middle" className="select-none" fontSize={0.8}>
-                    {piece}
-                  </text>
-                )}
+                <AnimatePresence>
+                  {piece && (
+                    <motion.text
+                      key={piece}
+                      x={fileIdx + 0.5}
+                      y={rankIdx + 0.68}
+                      textAnchor="middle"
+                      className="select-none"
+                      fontSize={0.8}
+                      initial={{ opacity: 0, scale: 0.9 }}
+                      animate={{ opacity: 1, scale: 1 }}
+                      exit={{ opacity: 0 }}
+                      transition={{ duration: 0.2 }}
+                    >
+                      {piece}
+                    </motion.text>
+                  )}
+                </AnimatePresence>
               </g>
             );
           })
