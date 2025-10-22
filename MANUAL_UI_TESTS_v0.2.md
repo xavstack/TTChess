@@ -284,9 +284,47 @@
 
 ---
 
+---
+
+## 15. Beta Deployment Tests (Production Server)
+
+### 15.1 Deployment Verification
+- [ ] **Test 15.1.1**: App loads at https://cherrynoir.fr/sideprojects/Games/trash-talk-chess-beta/
+- [ ] **Test 15.1.2**: No console errors on initial load
+- [ ] **Test 15.1.3**: All assets load correctly (check Network tab)
+- [ ] **Test 15.1.4**: Correct base path used for all resources
+
+### 15.2 PWA Functionality on Server
+- [ ] **Test 15.2.1**: PWA manifest loads correctly
+- [ ] **Test 15.2.2**: Service worker registers successfully
+- [ ] **Test 15.2.3**: "Install App" prompt appears (if supported)
+- [ ] **Test 15.2.4**: Offline mode works after initial visit
+
+### 15.3 Cross-Browser Testing (Production)
+- [ ] **Test 15.3.1**: Chrome desktop - full functionality
+- [ ] **Test 15.3.2**: Firefox desktop - full functionality
+- [ ] **Test 15.3.3**: Safari desktop - full functionality
+- [ ] **Test 15.3.4**: Mobile Safari - full functionality
+- [ ] **Test 15.3.5**: Mobile Chrome - full functionality
+
+### 15.4 Core Features on Production
+- [ ] **Test 15.4.1**: Game playable against AI
+- [ ] **Test 15.4.2**: TTS works (browser dependent)
+- [ ] **Test 15.4.3**: Dashboard opens and settings persist
+- [ ] **Test 15.4.4**: All themes and piece sets load
+- [ ] **Test 15.4.5**: Move list and PGN export work
+
+### 15.5 Performance on Production
+- [ ] **Test 15.5.1**: Initial page load < 3 seconds
+- [ ] **Test 15.5.2**: Smooth animations (60fps)
+- [ ] **Test 15.5.3**: No network errors in console
+- [ ] **Test 15.5.4**: Assets properly cached by service worker
+
+---
+
 ## Test Completion Checklist
 
-- [ ] **All 14 feature areas tested**
+- [ ] **All 15 feature areas tested**
 - [ ] **Desktop and mobile tested**
 - [ ] **All major browsers tested**
 - [ ] **Accessibility requirements verified**
@@ -294,9 +332,11 @@
 - [ ] **Error handling verified**
 - [ ] **Data persistence confirmed**
 - [ ] **Cross-feature compatibility verified**
+- [ ] **Production deployment verified**
 
 ## Test Results Summary
-- **Total Tests**: 84 individual test cases
-- **Test Categories**: 14 feature areas
-- **Coverage**: All M6 features and integrations
+- **Total Tests**: 89 individual test cases (84 dev + 5 production)
+- **Test Categories**: 15 feature areas (14 dev + 1 deployment)
+- **Coverage**: All M6 features, integrations, and production deployment
 - **Priority**: High (core functionality), Medium (UI/UX), Low (edge cases)
+- **Beta URL**: https://cherrynoir.fr/sideprojects/Games/trash-talk-chess-beta/

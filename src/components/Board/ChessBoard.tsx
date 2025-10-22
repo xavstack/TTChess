@@ -24,10 +24,10 @@ interface ChessBoardProps {
 }
 
 export function ChessBoard({ playerNames }: ChessBoardProps): JSX.Element {
-  const { chess, selected, legalTargets, selectSquare, makeMove, flipped, showCoordinates, showAids, aids, pieceSet } =
+  const { chess, selected, legalTargets, selectSquare, makeMove, boardVersion, flipped, showCoordinates, showAids, aids, pieceSet } =
     useGameStore()
 
-  const board = useMemo(() => chess.board(), [chess])
+  const board = useMemo(() => chess.board(), [chess, boardVersion])
 
   return (
     <div className="board-container">
@@ -83,10 +83,10 @@ export function ChessBoard({ playerNames }: ChessBoardProps): JSX.Element {
               )}
               {aids.bestMove && (
                 <line
-                  x1={files.indexOf(aids.bestMove.from[0] as typeof files[number]) + 0.5}
-                  y1={ranks.indexOf(aids.bestMove.from[1] as typeof ranks[number]) + 0.5}
-                  x2={files.indexOf(aids.bestMove.to[0] as typeof files[number]) + 0.5}
-                  y2={ranks.indexOf(aids.bestMove.to[1] as typeof ranks[number]) + 0.5}
+                  x1={files.indexOf(aids.bestMove.from[0] as any) + 0.5}
+                  y1={ranks.indexOf(aids.bestMove.from[1] as any) + 0.5}
+                  x2={files.indexOf(aids.bestMove.to[0] as any) + 0.5}
+                  y2={ranks.indexOf(aids.bestMove.to[1] as any) + 0.5}
                   stroke="#22d3ee"
                   strokeWidth="0.1"
                   markerEnd="url(#arrowhead)"
@@ -97,8 +97,8 @@ export function ChessBoard({ playerNames }: ChessBoardProps): JSX.Element {
               {aids.captures.map((capture, idx) => (
                 <circle
                   key={idx}
-                  cx={files.indexOf(capture.to[0] as typeof files[number]) + 0.5}
-                  cy={ranks.indexOf(capture.to[1] as typeof ranks[number]) + 0.5}
+                  cx={files.indexOf(capture.to[0] as any) + 0.5}
+                  cy={ranks.indexOf(capture.to[1] as any) + 0.5}
                   r="0.3"
                   fill="none"
                   stroke="#ef4444"

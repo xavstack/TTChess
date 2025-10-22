@@ -36,3 +36,4 @@
 - COMMIT: Tagged v0.2_unverified with complete M6 implementation ready for code review and manual testing.
 - DOCUMENTATION: Created comprehensive code review sheet (CODE_REVIEW_v0.2.md) covering all 14 M6 features, architecture changes, type safety improvements, and risk assessment.
 - TESTING: Created detailed manual UI test list (MANUAL_UI_TESTS_v0.2.md) with 84 test cases across 14 feature areas for thorough validation.
+- DEPLOYMENT: Configured production build for beta deployment at https://cherrynoir.fr/sideprojects/Games/trash-talk-chess-beta/; updated vite.config.ts with subdirectory base path; build successful with PWA service worker generation; created DEPLOY.md with upload instructions and testing checklist.
