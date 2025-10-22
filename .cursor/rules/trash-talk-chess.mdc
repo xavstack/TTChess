@@ -21,7 +21,7 @@ logToTrackOnly: true
 - Commits: self-commit locally with conventional messages after each milestone or coherent batch of changes.
 - Quality loop: after edits, run lint and tests automatically; fix straightforward issues autonomously.
 - Failure handling: if a step fails (e.g., network restricted), fallback to a local stub implementation and proceed; record details in TRACK.md.
-- Framework Status Notes: do not report status notes in the chat window to the user but use Track.md to log them. 
+- Status Notes: do not report status notes in the chat window to the user but use Track.md to log them. 
 - **Reporting: log progress in TRACK.md only; do not output recaps to the user or in the chat window.**
 
 ## Project Constraints

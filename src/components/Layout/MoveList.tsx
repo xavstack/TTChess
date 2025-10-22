@@ -2,6 +2,7 @@ import type { JSX } from 'react'
 import { useState, useMemo } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
 import { useGameStore } from '../../store/gameStore'
+import { Chess } from 'chess.js'
 
 interface MoveListProps {
   isCollapsed?: boolean
@@ -32,7 +33,7 @@ export default function MoveList({ isCollapsed = false, onToggle }: MoveListProp
   const handleJumpToMove = (moveNumber: number) => {
     setJumpToMove(moveNumber)
     // Reset board to that position
-    const tempChess = new (chess.constructor as any)()
+    const tempChess = new Chess()
     const history = tempChess.history({ verbose: true })
     const targetIndex = (moveNumber - 1) * 2
     
