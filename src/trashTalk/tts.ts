@@ -7,13 +7,36 @@ function synth(): SpeechSynthesis | undefined {
 }
 
 // Voice preferences (persisted)
-let preferredVoiceId: string | null = ((): string | null =>
-  localStorage.getItem('ttc_voice_id_v1'))()
-let preferredRate = Number(localStorage.getItem('ttc_voice_rate_v1') ?? '1.02') || 1.02
-let preferredPitch = Number(localStorage.getItem('ttc_voice_pitch_v1') ?? '1.0') || 1.0
+let preferredVoiceId: string | null = ((): string | null => {
+  try {
+    return localStorage.getItem('ttc_voice_id_v1')
+  } catch {
+    return null
+  }
+})()
+let preferredRate = (() => {
+  try {
+    return Number(localStorage.getItem('ttc_voice_rate_v1') ?? '1.02') || 1.02
+  } catch {
+    return 1.02
+  }
+})()
+let preferredPitch = (() => {
+  try {
+    return Number(localStorage.getItem('ttc_voice_pitch_v1') ?? '1.0') || 1.0
+  } catch {
+    return 1.0
+  }
+})()
 
 // Optional audio override (dev tool)
-let preferredAudioUrl: string | null = localStorage.getItem('ttc_voice_audio_url_v1')
+let preferredAudioUrl: string | null = (() => {
+  try {
+    return localStorage.getItem('ttc_voice_audio_url_v1')
+  } catch {
+    return null
+  }
+})()
 
 type QueueItem =
   | { kind: 'tts'; utter: SpeechSynthesisUtterance }
@@ -109,10 +132,13 @@ export function cancelSpeech(): void {
   const s = synth()
   // Stop audio items
   for (const item of queue) {
-    if (item.kind === 'audio')
+    if (item.kind === 'audio') {
       try {
         item.audio.pause()
-      } catch {}
+      } catch {
+        // ignore
+      }
+    }
   }
   queue.length = 0
   isSpeaking = false

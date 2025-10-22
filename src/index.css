@@ -8,13 +8,43 @@ body,
   overflow-x: hidden;
 }
 
-/* Mobile Safari viewport fix */
+/* Board color palettes */
 :root {
   color-scheme: light dark;
   --board-dark: #769656;
   --board-light: #eeeed2;
   --accent: #22d3ee;
   --chrome-height: 120px; /* Approximate header/footer space */
+}
+
+/* Classic Green (default) */
+.board-classic-green {
+  --board-dark: #769656;
+  --board-light: #eeeed2;
+}
+
+/* Blue Ice */
+.board-blue-ice {
+  --board-dark: #4a90e2;
+  --board-light: #e8f4fd;
+}
+
+/* Walnut */
+.board-walnut {
+  --board-dark: #8b4513;
+  --board-light: #f5deb3;
+}
+
+/* Slate */
+.board-slate {
+  --board-dark: #708090;
+  --board-light: #f0f0f0;
+}
+
+/* Night */
+.board-night {
+  --board-dark: #2c3e50;
+  --board-light: #ecf0f1;
 }
 
 .high-contrast {
@@ -34,13 +64,40 @@ body,
   fill: var(--accent);
 }
 
-/* Responsive board sizing */
+/* Responsive board sizing with viewport constraints */
 .board-viewport {
   width: 100%;
-  height: 100%;
+  height: clamp(60vh, 98vh, 98vh);
   max-width: min(650px, 90vmin);
   max-height: min(650px, 90vmin);
   aspect-ratio: 1 / 1;
+}
+
+/* Player nameplates */
+.player-nameplate {
+  font-size: clamp(0.875rem, 2.5vw, 1.25rem);
+  font-weight: 600;
+  text-align: center;
+  padding: 0.5rem;
+  background: rgba(255, 255, 255, 0.9);
+  border-radius: 0.5rem;
+  border: 1px solid rgba(0, 0, 0, 0.1);
+}
+
+.dark .player-nameplate {
+  background: rgba(0, 0, 0, 0.9);
+  border-color: rgba(255, 255, 255, 0.1);
+}
+
+/* Board container with safe area */
+.board-container {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  height: 100%;
+  width: 100%;
+  padding: env(safe-area-inset-top) env(safe-area-inset-right) env(safe-area-inset-bottom) env(safe-area-inset-left);
 }
 
 /* Mobile-first responsive breakpoints */

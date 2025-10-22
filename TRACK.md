@@ -20,3 +20,4 @@
 - DEV SERVER: Preflight blocked start due to Node 22.11.0; engines require Node >=20.19 or >=22.12. Action: upgrade local Node (e.g., 22.12+) before dev.
 - PLANNING: Added M6 plan to `PLAN.md` for dashboard menu, variants, move list, coordinates, palettes, gameplay aids, clock redesign, and piece sets.
 - ADRs: Recorded decisions ADR-006..ADR-012 covering dashboard overlay, layout constraints, variants strategy, move list/coordinates, themes/piece sets, aids rendering, and clock interaction.
+- REFACTOR: Created src/engine/types.ts with typed EngineRequest/EngineResponse protocols; eliminated all 'any' types across engine, store, components, and tests; added @ts-expect-error descriptions per lint rules.

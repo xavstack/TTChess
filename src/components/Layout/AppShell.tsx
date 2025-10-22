@@ -1,16 +1,12 @@
 import type { JSX } from 'react'
-import { useRef } from 'react'
+import { useRef, useState, useEffect } from 'react'
 import VoiceDevTool from '../../trashTalk/VoiceDevTool'
+import Dashboard from './Dashboard'
+import MoveList from './MoveList'
+import ClockPanel from './ClockPanel'
 import { useGameStore } from '../../store/gameStore'
 import type { EffectiveTone } from '../../trashTalk/selector'
 import type { Difficulty } from '../../engine/types'
-
-function formatMs(ms: number): string {
-  const s = Math.floor(ms / 1000)
-  const m = Math.floor(s / 60)
-  const r = s % 60
-  return `${String(m).padStart(2, '0')}:${String(r).padStart(2, '0')}`
-}
 
 export function AppShell({ children }: { children: React.ReactNode }): JSX.Element {
   const {
@@ -19,18 +15,43 @@ export function AppShell({ children }: { children: React.ReactNode }): JSX.Eleme
     lastTaunt,
     difficulty,
     setDifficulty,
-    timeWhiteMs,
-    timeBlackMs,
     toggleFlip,
     exportPgn,
     importPgn,
   } = useGameStore()
   const fileRef = useRef<HTMLInputElement>(null)
+  const [isDashboardOpen, setIsDashboardOpen] = useState(false)
+  const [isMoveListCollapsed, setIsMoveListCollapsed] = useState(false)
+
+  // Keyboard shortcuts
+  useEffect(() => {
+    const handleKeyDown = (e: KeyboardEvent) => {
+      if (e.key === '/' && !e.ctrlKey && !e.metaKey) {
+        e.preventDefault()
+        setIsDashboardOpen(true)
+      }
+      if (e.key === 'Escape') {
+        setIsDashboardOpen(false)
+      }
+    }
+
+    document.addEventListener('keydown', handleKeyDown)
+    return () => document.removeEventListener('keydown', handleKeyDown)
+  }, [])
 
   return (
     <div className="min-h-screen w-full flex flex-col md:grid md:grid-cols-[minmax(260px,320px)_1fr_minmax(260px,320px)] md:grid-rows-[1fr] gap-2 md:gap-4 p-2 md:p-4 max-h-screen overflow-hidden">
       <aside className="order-1 md:order-1 bg-white/60 dark:bg-black/40 rounded-md p-3 border mb-2 md:mb-0 overflow-y-auto">
-        <div className="font-semibold mb-2 text-sm md:text-base">Settings</div>
+        <div className="font-semibold mb-2 text-sm md:text-base flex items-center justify-between">
+          Settings
+          <button
+            onClick={() => setIsDashboardOpen(true)}
+            className="text-xs bg-gray-100 dark:bg-gray-800 hover:bg-gray-200 dark:hover:bg-gray-700 px-2 py-1 rounded"
+            title="Open full settings (/)"
+          >
+            ⚙️
+          </button>
+        </div>
         <div className="space-y-2">
           <div>
             <label className="block text-xs md:text-sm mb-1">Trash Talk Tone</label>
@@ -139,23 +160,27 @@ export function AppShell({ children }: { children: React.ReactNode }): JSX.Eleme
       </main>
 
       <aside className="order-3 bg-white/60 dark:bg-black/40 rounded-md p-3 border flex flex-col mt-2 md:mt-0 overflow-y-auto">
-        <div className="font-semibold mb-2 text-sm md:text-base">Clocks</div>
-        <div className="grid grid-cols-2 gap-1.5 md:gap-2 text-center text-xs md:text-sm mb-3 md:mb-4">
-          <div className="rounded border p-1.5 md:p-2 bg-blue-50 dark:bg-blue-900/20">
-            You: {formatMs(timeWhiteMs)}
-          </div>
-          <div className="rounded border p-1.5 md:p-2 bg-red-50 dark:bg-red-900/20">
-            AI: {formatMs(timeBlackMs)}
-          </div>
-        </div>
-        <div className="font-semibold mb-2 text-sm md:text-base">Avatar</div>
+        {/* Clock Panel */}
+        <ClockPanel />
+
+        <div className="font-semibold mb-2 text-sm md:text-base mt-4">Avatar</div>
         <div className="mt-auto">
           <div className="text-xs md:text-sm opacity-70 mb-1">Trash Talk</div>
           <div className="rounded-md border p-2 md:p-3 min-h-[48px] md:min-h-[64px] bg-white dark:bg-black text-xs md:text-sm">
             {lastTaunt ?? '…'}
           </div>
         </div>
+
+        {/* Move List */}
+        <div className="mt-4">
+          <MoveList 
+            isCollapsed={isMoveListCollapsed} 
+            onToggle={() => setIsMoveListCollapsed(!isMoveListCollapsed)} 
+          />
+        </div>
       </aside>
+
+      <Dashboard isOpen={isDashboardOpen} onClose={() => setIsDashboardOpen(false)} />
     </div>
   )
 }

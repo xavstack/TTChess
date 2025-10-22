@@ -6,6 +6,7 @@ const mockSynth = {
   pending: false,
   cancel: vi.fn(),
   speak: vi.fn(),
+  getVoices: vi.fn(() => [{ name: 'Test', voiceURI: 'test', lang: 'en-US' }]),
 }
 
 // @ts-expect-error -- mock SpeechSynthesis for tests
@@ -35,8 +36,9 @@ describe('tts', () => {
 
   it('debounces within 1.5s by cancelling previous', () => {
     mockSynth.speaking = true
+    mockSynth.pending = true
     speak('a')
-    speak('b')
+    speak('b', { interrupt: true })
     expect(mockSynth.cancel).toHaveBeenCalled()
   })
 
