@@ -1,9 +1,9 @@
 # Codebase Review - Trash-Talk Chess v1
 
-## Priority 1: Critical Issues (Fix Now)
-- **Layout overflow**: Board doesn't fit viewport on small screens; right column gets cut off
-- **Mobile blank screens**: iOS Safari shows nothing due to viewport height handling
-- **Plaintext UI**: Settings panels render as unstyled text instead of proper UI
+## Priority 1: Critical Issues (FIXED)
+- ✅ **Layout overflow**: Board doesn't fit viewport on small screens; right column gets cut off - FIXED via container-relative sizing
+- ✅ **Mobile blank screens**: iOS Safari shows nothing due to viewport height handling - FIXED via proper viewport units
+- ✅ **Plaintext UI**: Settings panels render as unstyled text instead of proper UI - FIXED via Tailwind CSS configuration
 
 ## Priority 2: Engine & Performance
 - **Stockfish WASM**: Currently using random fallback; integrate actual WASM binary for real chess strength

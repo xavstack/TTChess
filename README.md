@@ -4,10 +4,17 @@ A browser chess game with an attitude: clean 2D board, right-side avatar, and vo
 
 ## Quickstart
 
+### Prerequisites
+- Node.js 18+ and npm
+- All configuration files present (see CONTRIBUTING.md)
+
+### Setup
 ```bash
 npm install
 npm run dev
 ```
+
+**Important:** If the UI appears as unstyled HTML (plain text), the Tailwind CSS configuration is missing. See CONTRIBUTING.md for required configuration files.
 
 ## Features (v1)
 - Human vs AI (Stockfish WASM worker)

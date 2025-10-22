@@ -28,27 +28,32 @@ html, body, #root {
 
 /* Responsive board sizing */
 .board-viewport {
-  width: min(100vw - 2rem, calc(100svh - var(--chrome-height)));
-  height: min(100vw - 2rem, calc(100svh - var(--chrome-height)));
-  max-width: 650px;
-  max-height: 650px;
+  width: 100%;
+  height: 100%;
+  max-width: min(650px, 90vmin);
+  max-height: min(650px, 90vmin);
   aspect-ratio: 1 / 1;
 }
 
 /* Mobile-first responsive breakpoints */
 @media (max-width: 767px) {
   .board-viewport {
-    width: min(100vw - 1rem, calc(100svh - 140px));
-    height: min(100vw - 1rem, calc(100svh - 140px));
+    max-width: min(500px, 85vmin);
+    max-height: min(500px, 85vmin);
   }
 }
 
 /* Prevent scroll bounce on iOS */
 @media (max-width: 767px) {
   body {
-    position: fixed;
     overflow: hidden;
     width: 100%;
-    height: 100%;
+    height: 100vh;
+    height: 100dvh; /* Use dynamic viewport height on modern browsers */
+  }
+  
+  #root {
+    height: 100vh;
+    height: 100dvh;
   }
 }

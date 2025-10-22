@@ -1,5 +1,6 @@
 import type { JSX } from 'react';
 import { useRef } from 'react';
+import VoiceDevTool from '../../trashTalk/VoiceDevTool';
 import { useGameStore } from '../../store/gameStore';
 
 function formatMs(ms: number): string {
@@ -17,8 +18,8 @@ export function AppShell({ children }: { children: React.ReactNode }): JSX.Eleme
   const fileRef = useRef<HTMLInputElement>(null);
 
   return (
-    <div className="min-h-screen w-full flex flex-col md:grid md:grid-cols-[minmax(260px,320px)_1fr_minmax(260px,320px)] gap-2 md:gap-4 p-2 md:p-4">
-      <aside className="order-1 md:order-1 bg-white/60 dark:bg-black/40 rounded-md p-3 border mb-2 md:mb-0">
+    <div className="min-h-screen w-full flex flex-col md:grid md:grid-cols-[minmax(260px,320px)_1fr_minmax(260px,320px)] md:grid-rows-[1fr] gap-2 md:gap-4 p-2 md:p-4 max-h-screen overflow-hidden">
+      <aside className="order-1 md:order-1 bg-white/60 dark:bg-black/40 rounded-md p-3 border mb-2 md:mb-0 overflow-y-auto">
         <div className="font-semibold mb-2 text-sm md:text-base">Settings</div>
         <div className="space-y-2">
           <div>
@@ -98,11 +99,16 @@ export function AppShell({ children }: { children: React.ReactNode }): JSX.Eleme
         </div>
       </aside>
 
-      <main className="order-2 md:order-2 flex items-center justify-center flex-1 min-h-0">
-        {children}
+      <main className="order-2 md:order-2 flex items-center justify-center flex-1 min-h-0 w-full overflow-hidden">
+        <div className="w-full h-full flex items-center justify-center p-2">
+          {children}
+          <div className="hidden md:block absolute bottom-2 right-2 max-w-[360px]">
+            <VoiceDevTool />
+          </div>
+        </div>
       </main>
 
-      <aside className="order-3 bg-white/60 dark:bg-black/40 rounded-md p-3 border flex flex-col mt-2 md:mt-0">
+      <aside className="order-3 bg-white/60 dark:bg-black/40 rounded-md p-3 border flex flex-col mt-2 md:mt-0 overflow-y-auto">
         <div className="font-semibold mb-2 text-sm md:text-base">Clocks</div>
         <div className="grid grid-cols-2 gap-1.5 md:gap-2 text-center text-xs md:text-sm mb-3 md:mb-4">
           <div className="rounded border p-1.5 md:p-2 bg-blue-50 dark:bg-blue-900/20">You: {formatMs(timeWhiteMs)}</div>

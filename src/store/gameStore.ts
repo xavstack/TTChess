@@ -20,6 +20,7 @@ type StoreState = {
   timeWhiteMs: number;
   timeBlackMs: number;
   activeSide: 'w' | 'b' | null;
+  tauntEngineMoves: boolean; // whether to generate taunts on AI moves
   selectSquare: (sq: Square | null) => void;
   makeMove: (from: Square, to: Square) => void;
   setTone: (tone: EffectiveTone) => void;
@@ -28,6 +29,7 @@ type StoreState = {
   exportPgn: () => string;
   importPgn: (text: string) => void;
   undoPair: () => void;
+  setTauntEngineMoves: (enabled: boolean) => void;
 };
 
 function getLegalTargets(chess: Chess, from: Square): Square[] {
@@ -71,6 +73,10 @@ export const useGameStore = create<StoreState>((set, get) => {
     timeWhiteMs: 5 * 60 * 1000,
     timeBlackMs: 5 * 60 * 1000,
     activeSide: null,
+    tauntEngineMoves: ((): boolean => {
+      const saved = localStorage.getItem('ttc_taunt_engine_moves_v1');
+      return saved === 'true'; // default false
+    })(),
     setTone: (tone) => {
       localStorage.setItem('ttc_tone_v1', tone);
       set({ tone });
@@ -80,6 +86,10 @@ export const useGameStore = create<StoreState>((set, get) => {
       set({ difficulty: d, engine: new Engine(d) });
     },
     toggleFlip: () => set((s) => ({ flipped: !s.flipped })),
+    setTauntEngineMoves: (enabled) => {
+      localStorage.setItem('ttc_taunt_engine_moves_v1', enabled ? 'true' : 'false');
+      set({ tauntEngineMoves: enabled });
+    },
     selectSquare: (sq) => {
       const { chess } = get();
       if (!sq) {
@@ -90,7 +100,7 @@ export const useGameStore = create<StoreState>((set, get) => {
       set({ selected: sq, legalTargets: targets });
     },
     makeMove: async (from, to) => {
-      const { chess, tone, engine, activeSide } = get();
+      const { chess, tone, engine, activeSide, tauntEngineMoves } = get();
 
       const move = chess.move({ from, to, promotion: 'q' });
       if (!move) return;
@@ -112,7 +122,7 @@ export const useGameStore = create<StoreState>((set, get) => {
       const reply = chess.move({ from: best.from as Square, to: best.to as Square, promotion: 'q' });
       if (!reply) return;
       const uiReply = moveToUi(reply);
-      const taunt2 = maybeTaunt(uiReply, tone);
+      const taunt2 = tauntEngineMoves ? maybeTaunt(uiReply, tone) : null;
       set({ lastTaunt: taunt2 ?? null, boardVersion: Math.random(), activeSide: 'b' });
       // Immediately give turn back to human
       set({ activeSide: 'w' });
@@ -133,21 +143,32 @@ export const useGameStore = create<StoreState>((set, get) => {
     },
   };
 
-  // Clock ticking interval
-  setInterval(() => {
-    const { activeSide, timeWhiteMs, timeBlackMs, chess } = get();
-    if (!activeSide) return;
-    if (chess.isGameOver()) { set({ activeSide: null }); return; }
-    if (activeSide === 'w') {
-      const next = Math.max(0, timeWhiteMs - 200);
-      set({ timeWhiteMs: next });
-      if (next === 0) set({ activeSide: null });
-    } else {
-      const next = Math.max(0, timeBlackMs - 200);
-      set({ timeBlackMs: next });
-      if (next === 0) set({ activeSide: null });
-    }
-  }, 200);
+  // Clock ticking interval (guarded and throttled)
+  // Only update store when the displayed whole second changes to reduce re-render churn
+  (function startClockTicker() {
+    const g: any = globalThis as any;
+    if (g.__ttcClockTimer) clearInterval(g.__ttcClockTimer);
+    const TICK_MS = 250;
+    g.__ttcClockTimer = setInterval(() => {
+      const { activeSide, timeWhiteMs, timeBlackMs, chess } = get();
+      if (!activeSide) return;
+      if (chess.isGameOver()) { set({ activeSide: null }); return; }
+
+      if (activeSide === 'w') {
+        const next = Math.max(0, timeWhiteMs - TICK_MS);
+        if (Math.floor(next / 1000) !== Math.floor(timeWhiteMs / 1000) || next === 0) {
+          set({ timeWhiteMs: next });
+          if (next === 0) set({ activeSide: null });
+        }
+      } else {
+        const next = Math.max(0, timeBlackMs - TICK_MS);
+        if (Math.floor(next / 1000) !== Math.floor(timeBlackMs / 1000) || next === 0) {
+          set({ timeBlackMs: next });
+          if (next === 0) set({ activeSide: null });
+        }
+      }
+    }, TICK_MS);
+  })();
 
   return initial;
 });

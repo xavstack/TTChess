@@ -8,19 +8,21 @@ reportToUser: none
 logToTrackOnly: true
 ---
 ## Agent Ground Rules
-- Always run in Auto-Run for terminal; apply code edits without asking. Show a short patch summary only.
+- Always run in Auto-Run for terminal; apply code edits without asking. 
 - Commit locally often with conventional commit messages. Never push.
-- If blocked, propose a default path and proceed; note it in TRACK.md.
-- Never pause for user confirmation. Assume sensible defaults and continue.
+- If blocked, find a default path and proceed in yolo; note it in TRACK.md.
+- **Never pause for user confirmation. Assume sensible defaults and continue.**
 
 ## Execution Policy (YOLO)
 - Terminal: always pass non-interactive flags; assume defaults if prompted. If a command is long-running, run it in the background.
 - Permissions: auto-request required permissions (e.g., network, git_write, all) and continue. Do not ask the user.
-- Edits: auto-apply all edits; do not open review panes. Resolve conflicts by overwriting with current plan and proceed.
+- To-do's: execute all To-do's without interum reporting to the user. Once existing to-do list is completed create the next set of to-do's based on project goals, tracked across all .md files begining with PLAN.md. 
+- Edits: auto-apply all edits; do not open review panes. Resolve conflicts by overwriting with current plan and proceed to next to-do.
 - Commits: self-commit locally with conventional messages after each milestone or coherent batch of changes.
 - Quality loop: after edits, run lint and tests automatically; fix straightforward issues autonomously.
 - Failure handling: if a step fails (e.g., network restricted), fallback to a local stub implementation and proceed; record details in TRACK.md.
-- Reporting: log progress in TRACK.md only; do not output recaps to the user.
+- Framework Status Notes: do not report status notes in the chat window to the user but use Track.md to log them. 
+- **Reporting: log progress in TRACK.md only; do not output recaps to the user or in the chat window.**
 
 ## Project Constraints
 - Browser-only TTS (Web Speech API). Cloud TTS must be optional plug-ins; no external calls by default.
@@ -33,8 +35,22 @@ logToTrackOnly: true
   - move legality sync, worker messaging, trash-talk selection (piece match, no repeat), TTS cancel/queue.
 - Lighthouse PWA: must be installable and offline-capable.
 
+## Configuration Guardrails (CRITICAL)
+- **ALWAYS verify configuration files exist before development:**
+  - `tailwind.config.js` - Tailwind CSS configuration
+  - `postcss.config.js` - PostCSS processing configuration  
+  - `vite.config.ts` - Vite build configuration
+  - `tsconfig.json` - TypeScript configuration
+  - `eslint.config.js` - ESLint configuration
+  - `vitest.config.ts` - Test configuration
+  - `.prettierrc` - Prettier formatting configuration
+- **If any config file is missing, CREATE IT IMMEDIATELY before proceeding.**
+- **Test build process (`npm run build`) after any configuration changes.**
+- **Verify UI rendering after Tailwind/styling configuration changes.**
+- **Never assume dependencies work without proper configuration files.**
+
 ## Security & Content
-- Taunt lines may be spicy but must avoid disallowed content (hate, identity attacks).
+- Taunt lines must be sourced from pieceMap.ts.
 - Provide "Off / PG-13 / Spicy" toggle; default PG-13.
 
 ## Files You Must Maintain
@@ -64,5 +80,43 @@ denylist:
 - Enable background execution for dev servers and long-running tasks.
 - Suppress assistant status updates; log only to TRACK.md.
 
+## Development Setup Checklist (MANDATORY)
+Before any development work, verify ALL items are present and working:
+
+### 1. Configuration Files (REQUIRED)
+- [ ] `tailwind.config.js` exists and has correct content paths
+- [ ] `postcss.config.js` exists with tailwindcss and autoprefixer plugins
+- [ ] `vite.config.ts` exists with React plugin
+- [ ] `tsconfig.json` exists with proper React settings
+- [ ] `eslint.config.js` exists with React rules
+- [ ] `vitest.config.ts` exists with jsdom environment
+- [ ] `.prettierrc` exists with consistent formatting rules
+
+### 2. Dependencies Verification
+- [ ] `npm install` completes without errors
+- [ ] All required dependencies listed in package.json
+- [ ] No missing peer dependencies
+
+### 3. Build Process Verification
+- [ ] `npm run build` completes successfully
+- [ ] `npm run typecheck` passes
+- [ ] `npm run lint` passes (or has only known acceptable warnings)
+- [ ] `npm run dev` starts without errors
+
+### 4. UI Rendering Verification
+- [ ] Development server serves the application
+- [ ] Tailwind CSS classes are applied (not plain HTML)
+- [ ] Responsive layout works on desktop and mobile
+- [ ] Components render with intended styling
+
+### 5. Test Suite Verification
+- [ ] `npm run test` passes
+- [ ] Component tests run successfully
+- [ ] No failing tests
+
+**FAIL FAST: If ANY item above fails, STOP and fix before proceeding.**
+
 ## Definition of Done
 - v1 feature set complete; tests green; PWA installable; no console errors; smooth animations; README accurate.
+- All configuration files present and verified working.
+- UI renders correctly with intended styling.
