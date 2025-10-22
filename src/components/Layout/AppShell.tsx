@@ -2,6 +2,8 @@ import type { JSX } from 'react'
 import { useRef } from 'react'
 import VoiceDevTool from '../../trashTalk/VoiceDevTool'
 import { useGameStore } from '../../store/gameStore'
+import type { EffectiveTone } from '../../trashTalk/selector'
+import type { Difficulty } from '../../engine/types'
 
 function formatMs(ms: number): string {
   const s = Math.floor(ms / 1000)
@@ -35,7 +37,7 @@ export function AppShell({ children }: { children: React.ReactNode }): JSX.Eleme
             <select
               className="w-full rounded border bg-white dark:bg-black p-1.5 md:p-2 text-xs md:text-sm"
               value={tone}
-              onChange={e => setTone(e.target.value as any)}
+              onChange={e => setTone(e.target.value as EffectiveTone)}
             >
               <option value="off">Off</option>
               <option value="pg13">PG-13</option>
@@ -48,7 +50,7 @@ export function AppShell({ children }: { children: React.ReactNode }): JSX.Eleme
             <select
               className="w-full rounded border bg-white dark:bg-black p-1.5 md:p-2 text-xs md:text-sm"
               value={difficulty}
-              onChange={e => setDifficulty(e.target.value as any)}
+              onChange={e => setDifficulty(e.target.value as Difficulty)}
             >
               <option>Beginner</option>
               <option>Casual</option>

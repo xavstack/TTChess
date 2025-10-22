@@ -3,15 +3,13 @@ import { useMemo } from 'react'
 import { useGameStore } from '../../store/gameStore'
 import { pieceToUnicode } from '../../utils/pieces'
 import { motion, AnimatePresence } from 'framer-motion'
+import type { Square } from 'chess.js'
 
 const files = ['a', 'b', 'c', 'd', 'e', 'f', 'g', 'h'] as const
 const ranks = ['8', '7', '6', '5', '4', '3', '2', '1'] as const
 
-function squareName(
-  fileIdx: number,
-  rankIdx: number
-): `${(typeof files)[number]}${(typeof ranks)[number]}` {
-  return `${files[fileIdx]}${ranks[rankIdx]}` as any
+function squareName(fileIdx: number, rankIdx: number): Square {
+  return `${files[fileIdx]}${ranks[rankIdx]}` as Square
 }
 
 function isDark(fileIdx: number, rankIdx: number): boolean {
@@ -37,21 +35,21 @@ export function ChessBoard(): JSX.Element {
               ? pieceToUnicode((cell.color === 'w' ? cell.type.toUpperCase() : cell.type) as string)
               : ''
             const isSel = selected === sq
-            const isTarget = legalTargets.includes(sq as any)
+            const isTarget = legalTargets.includes(sq)
             return (
               <g
                 key={`${fileIdx}-${rankIdx}`}
                 onClick={() => {
                   if (selected) {
                     if (isTarget) {
-                      makeMove(selected as any, sq as any)
+                      makeMove(selected, sq)
                     } else if (selected === sq) {
                       selectSquare(null)
                     } else {
-                      selectSquare(sq as any)
+                      selectSquare(sq)
                     }
                   } else {
-                    selectSquare(sq as any)
+                    selectSquare(sq)
                   }
                 }}
               >

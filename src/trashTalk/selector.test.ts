@@ -8,7 +8,7 @@ const setItem = vi.fn((k: string, v: string) => {
   store[k] = v
 })
 
-// @ts-expect-error
+// @ts-expect-error -- mock localStorage for tests
 global.localStorage = { getItem, setItem }
 
 describe('selectTrashTalk', () => {

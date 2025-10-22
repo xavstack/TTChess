@@ -8,12 +8,17 @@ const mockSynth = {
   speak: vi.fn(),
 }
 
-// @ts-ignore
-;(globalThis as any).speechSynthesis = mockSynth
-// @ts-ignore
-;(globalThis as any).SpeechSynthesisUtterance = function (this: any, text: string) {
+// @ts-expect-error -- mock SpeechSynthesis for tests
+;(globalThis as typeof globalThis & { speechSynthesis: typeof mockSynth }).speechSynthesis =
+  mockSynth
+// @ts-expect-error -- mock SpeechSynthesisUtterance for tests
+;(
+  globalThis as typeof globalThis & {
+    SpeechSynthesisUtterance: new (text: string) => { text: string }
+  }
+).SpeechSynthesisUtterance = function (this: { text: string }, text: string) {
   this.text = text
-} as any
+}
 
 describe('tts', () => {
   beforeEach(() => {

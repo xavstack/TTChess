@@ -145,7 +145,7 @@ export const useGameStore = create<StoreState>((set, get) => {
 
       // Engine reply using worker; clock switches back to white after engine moves
       const best = await engine.bestMove(chess.fen())
-      const reply = chess.move({ from: best.from as Square, to: best.to as Square, promotion: 'q' })
+      const reply = chess.move({ from: best.from as Square, to: best.to as Square, promotion: 'q' as 'q' })
       if (!reply) return
       const uiReply = moveToUi(reply)
       const taunt2 = tauntEngineMoves ? maybeTaunt(uiReply, tone) : null

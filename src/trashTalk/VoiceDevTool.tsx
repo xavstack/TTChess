@@ -46,9 +46,12 @@ export default function VoiceDevTool(): JSX.Element | null {
     }
     // Chrome populates voices async
     try {
-      const s = (globalThis as any).speechSynthesis as SpeechSynthesis | undefined
+      const s = (globalThis as typeof globalThis & { speechSynthesis?: SpeechSynthesis })
+        .speechSynthesis
       if (s) s.onvoiceschanged = () => refresh()
-    } catch {}
+    } catch {
+      // speechSynthesis not available
+    }
     refresh()
   }, [])
 

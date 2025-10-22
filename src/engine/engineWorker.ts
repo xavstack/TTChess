@@ -1,15 +1,8 @@
 /// <reference lib="webworker" />
 import { Chess } from 'chess.js'
+import type { EngineRequest, EngineResponse } from './types'
 
-type EngineRequest =
-  | { type: 'init'; skill: number; depth: number; movetime: number }
-  | { type: 'bestmove'; fen: string }
-
-type EngineResponse =
-  | { type: 'ready' }
-  | { type: 'bestmove'; san: string; from: string; to: string }
-
-const ctx: DedicatedWorkerGlobalScope = self as any
+const ctx: DedicatedWorkerGlobalScope = self as unknown as DedicatedWorkerGlobalScope
 let skill = 1
 let depth = 4
 let movetime = 200

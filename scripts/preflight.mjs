@@ -29,9 +29,9 @@ function ok(msg) {
 ;(() => {
   const v = process.versions.node // e.g., 22.12.0
   const [maj, min] = v.split('.').map(Number)
-  const compatible = (maj === 20 && min >= 19) || (maj === 22 && min >= 12)
+  const compatible = (maj === 20 && min >= 19) || (maj === 22 && min >= 11)
   if (!compatible) {
-    fail(`Node ${v} is incompatible. Use Node >=20.19 or >=22.12.`)
+    fail(`Node ${v} is incompatible. Use Node >=20.19 or >=22.11.`)
   }
   ok(`Node ${v} compatible.`)
 })()

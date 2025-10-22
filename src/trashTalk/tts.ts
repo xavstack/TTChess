@@ -1,8 +1,9 @@
 let lastSpokenAt = 0
 const MIN_INTERVAL_MS = 1500 // debounce ≥1.5s
 
-function synth() {
-  return (globalThis as any).speechSynthesis as SpeechSynthesis | undefined
+function synth(): SpeechSynthesis | undefined {
+  return (globalThis as typeof globalThis & { speechSynthesis?: SpeechSynthesis })
+    .speechSynthesis
 }
 
 // Voice preferences (persisted)
