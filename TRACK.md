@@ -14,3 +14,9 @@
 - DOCS CLEANUP: Consolidated redundant fix documentation (LAYOUT_FIX_ANALYSIS.md, LAYOUT_FIX_SUMMARY.md, TAILWIND_FIX_SUMMARY.md, FIX_STATUS.md) into this TRACK.md entry to reduce duplication and token waste.
 - VOICE SYSTEM: Added Voice Lab dev tool for voice selection and custom audio URL overrides; refactored TTS with queued speech to prevent interruptions; added reversible gate to disable taunts on AI moves.
 - PERFORMANCE: Fixed console "Violation setInterval" spam by throttling clock updates to whole-second boundaries while maintaining smooth display.
+
+- RELEASE: Tagged baseline `V0.1_demo_TTC`.
+- MAINTENANCE: Stopped running dev servers; formatted codebase with Prettier; lint pass noted type strictness items for future cleanup.
+- DEV SERVER: Preflight blocked start due to Node 22.11.0; engines require Node >=20.19 or >=22.12. Action: upgrade local Node (e.g., 22.12+) before dev.
+- PLANNING: Added M6 plan to `PLAN.md` for dashboard menu, variants, move list, coordinates, palettes, gameplay aids, clock redesign, and piece sets.
+- ADRs: Recorded decisions ADR-006..ADR-012 covering dashboard overlay, layout constraints, variants strategy, move list/coordinates, themes/piece sets, aids rendering, and clock interaction.

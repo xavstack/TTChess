@@ -1,7 +1,9 @@
-@import "tailwindcss";
+@import 'tailwindcss';
 
 /* App-wide layout helpers */
-html, body, #root {
+html,
+body,
+#root {
   height: 100%;
   overflow-x: hidden;
 }
@@ -22,9 +24,15 @@ html, body, #root {
 }
 
 /* Utility classes to map variables */
-.fill-board-dark { fill: var(--board-dark); }
-.fill-board-light { fill: var(--board-light); }
-.fill-accent { fill: var(--accent); }
+.fill-board-dark {
+  fill: var(--board-dark);
+}
+.fill-board-light {
+  fill: var(--board-light);
+}
+.fill-accent {
+  fill: var(--accent);
+}
 
 /* Responsive board sizing */
 .board-viewport {
@@ -51,7 +59,7 @@ html, body, #root {
     height: 100vh;
     height: 100dvh; /* Use dynamic viewport height on modern browsers */
   }
-  
+
   #root {
     height: 100vh;
     height: 100dvh;

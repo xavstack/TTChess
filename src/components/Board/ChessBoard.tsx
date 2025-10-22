@@ -1,55 +1,80 @@
-import type { JSX } from 'react';
-import { useMemo } from 'react';
-import { useGameStore } from '../../store/gameStore';
-import { pieceToUnicode } from '../../utils/pieces';
-import { motion, AnimatePresence } from 'framer-motion';
+import type { JSX } from 'react'
+import { useMemo } from 'react'
+import { useGameStore } from '../../store/gameStore'
+import { pieceToUnicode } from '../../utils/pieces'
+import { motion, AnimatePresence } from 'framer-motion'
 
-const files = ['a','b','c','d','e','f','g','h'] as const;
-const ranks = ['8','7','6','5','4','3','2','1'] as const;
+const files = ['a', 'b', 'c', 'd', 'e', 'f', 'g', 'h'] as const
+const ranks = ['8', '7', '6', '5', '4', '3', '2', '1'] as const
 
-function squareName(fileIdx: number, rankIdx: number): `${typeof files[number]}${typeof ranks[number]}` {
-  return `${files[fileIdx]}${ranks[rankIdx]}` as any;
+function squareName(
+  fileIdx: number,
+  rankIdx: number
+): `${(typeof files)[number]}${(typeof ranks)[number]}` {
+  return `${files[fileIdx]}${ranks[rankIdx]}` as any
 }
 
 function isDark(fileIdx: number, rankIdx: number): boolean {
-  return (fileIdx + rankIdx) % 2 === 1;
+  return (fileIdx + rankIdx) % 2 === 1
 }
 
 export function ChessBoard(): JSX.Element {
-  const { chess, selected, legalTargets, selectSquare, makeMove, boardVersion, flipped } = useGameStore();
+  const { chess, selected, legalTargets, selectSquare, makeMove, boardVersion, flipped } =
+    useGameStore()
 
-  const board = useMemo(() => chess.board(), [chess, boardVersion]);
+  const board = useMemo(() => chess.board(), [chess, boardVersion])
 
   return (
     <div className="board-viewport">
       <svg viewBox="0 0 8 8" className="w-full h-full">
-        {Array.from({ length: 8 }).map((_, rankIdx) => (
+        {Array.from({ length: 8 }).map((_, rankIdx) =>
           Array.from({ length: 8 }).map((_, fileIdx) => {
-            const uiFileIdx = flipped ? 7 - fileIdx : fileIdx;
-            const uiRankIdx = flipped ? 7 - rankIdx : rankIdx;
-            const sq = squareName(uiFileIdx, uiRankIdx);
-            const cell = board[uiRankIdx][uiFileIdx];
-            const piece = cell ? pieceToUnicode((cell.color === 'w' ? cell.type.toUpperCase() : cell.type) as string) : '';
-            const isSel = selected === sq;
-            const isTarget = legalTargets.includes(sq as any);
+            const uiFileIdx = flipped ? 7 - fileIdx : fileIdx
+            const uiRankIdx = flipped ? 7 - rankIdx : rankIdx
+            const sq = squareName(uiFileIdx, uiRankIdx)
+            const cell = board[uiRankIdx][uiFileIdx]
+            const piece = cell
+              ? pieceToUnicode((cell.color === 'w' ? cell.type.toUpperCase() : cell.type) as string)
+              : ''
+            const isSel = selected === sq
+            const isTarget = legalTargets.includes(sq as any)
             return (
-              <g key={`${fileIdx}-${rankIdx}`} onClick={() => {
-                if (selected) {
-                  if (isTarget) {
-                    makeMove(selected as any, sq as any);
-                  } else if (selected === sq) {
-                    selectSquare(null);
+              <g
+                key={`${fileIdx}-${rankIdx}`}
+                onClick={() => {
+                  if (selected) {
+                    if (isTarget) {
+                      makeMove(selected as any, sq as any)
+                    } else if (selected === sq) {
+                      selectSquare(null)
+                    } else {
+                      selectSquare(sq as any)
+                    }
                   } else {
-                    selectSquare(sq as any);
+                    selectSquare(sq as any)
                   }
-                } else {
-                  selectSquare(sq as any);
-                }
-              }}>
-                <rect x={fileIdx} y={rankIdx} width={1} height={1}
-                  className={isSel ? 'fill-accent' : isDark(fileIdx, rankIdx) ? 'fill-board-dark' : 'fill-board-light'} />
+                }}
+              >
+                <rect
+                  x={fileIdx}
+                  y={rankIdx}
+                  width={1}
+                  height={1}
+                  className={
+                    isSel
+                      ? 'fill-accent'
+                      : isDark(fileIdx, rankIdx)
+                        ? 'fill-board-dark'
+                        : 'fill-board-light'
+                  }
+                />
                 {isTarget && (
-                  <circle cx={fileIdx + 0.5} cy={rankIdx + 0.5} r={0.12} className="fill-black/40" />
+                  <circle
+                    cx={fileIdx + 0.5}
+                    cy={rankIdx + 0.5}
+                    r={0.12}
+                    className="fill-black/40"
+                  />
                 )}
                 <AnimatePresence>
                   {piece && (
@@ -70,12 +95,12 @@ export function ChessBoard(): JSX.Element {
                   )}
                 </AnimatePresence>
               </g>
-            );
+            )
           })
-        ))}
+        )}
       </svg>
     </div>
-  );
+  )
 }
 
-export default ChessBoard;
+export default ChessBoard
