@@ -21,3 +21,15 @@
 - PLANNING: Added M6 plan to `PLAN.md` for dashboard menu, variants, move list, coordinates, palettes, gameplay aids, clock redesign, and piece sets.
 - ADRs: Recorded decisions ADR-006..ADR-012 covering dashboard overlay, layout constraints, variants strategy, move list/coordinates, themes/piece sets, aids rendering, and clock interaction.
 - REFACTOR: Created src/engine/types.ts with typed EngineRequest/EngineResponse protocols; eliminated all 'any' types across engine, store, components, and tests; added @ts-expect-error descriptions per lint rules.
+- M6 COMPLETE: All 14 planned features implemented and tested:
+  - ✅ Unified Dashboard overlay with hotkey (/) and focus trap
+  - ✅ Player nameplates with ≤98vh viewport constraints  
+  - ✅ Game variants: Standard, Chess960, King of the Hill, Three-check, Horde
+  - ✅ Collapsible SAN move list with jump-to-move functionality
+  - ✅ Outside-board file/rank coordinates (toggleable)
+  - ✅ 5 board color palettes with persistence
+  - ✅ Gameplay aids: arrows and capture circles from Worker
+  - ✅ Clock redesign with flip interaction and Space hotkey
+  - ✅ 4 piece sets with free Unicode symbols and attribution
+  - ✅ All features persist settings and pass tests/build
+- BUILD: Production build successful with PWA generation; all tests passing; lint clean.
