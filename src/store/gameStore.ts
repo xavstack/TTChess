@@ -117,7 +117,19 @@ export const useGameStore = create<StoreState>((set, get) => {
       localStorage.setItem('ttc_variant_v1', v)
       const rules = createRules(v)
       const fen = rules.getFen()
-      set({ variant: v, chess: new Chess(fen), boardVersion: Math.random(), activeSide: null })
+      const engineAvailable = v === 'standard' || v === 'chess960'
+      // Recreate engine with chess960 flag when needed
+      const currentDifficulty = get().difficulty
+      const engine = new Engine(currentDifficulty, { chess960: v === 'chess960' })
+      engine.newGame().catch(() => {})
+      set({
+        variant: v,
+        chess: new Chess(fen),
+        engine,
+        isEngineAvailable: engineAvailable,
+        boardVersion: Math.random(),
+        activeSide: null,
+      })
     },
     isEngineAvailable: ((): boolean => {
       const saved = localStorage.getItem('ttc_variant_v1') as Variant | null
@@ -151,6 +163,12 @@ export const useGameStore = create<StoreState>((set, get) => {
     setShowAids: (show: boolean) => {
       localStorage.setItem('ttc_show_aids_v1', show ? 'true' : 'false')
       set({ showAids: show })
+      if (show) {
+        const { chess } = get()
+        aidsEngine.analyze(chess.fen(), (aids) => set({ aids }))
+      } else {
+        set({ aids: { captures: [] } })
+      }
     },
     aids: { captures: [] },
     setActiveSide: (side: 'w' | 'b' | null) => {
@@ -178,7 +196,10 @@ export const useGameStore = create<StoreState>((set, get) => {
     },
     setDifficulty: d => {
       localStorage.setItem('ttc_difficulty_v1', d)
-      set({ difficulty: d, engine: new Engine(d) })
+      const v = get().variant
+      const engine = new Engine(d, { chess960: v === 'chess960' })
+      engine.newGame().catch(() => {})
+      set({ difficulty: d, engine })
     },
     toggleFlip: () => set(s => ({ flipped: !s.flipped })),
     selectSquare: sq => {
@@ -192,9 +213,7 @@ export const useGameStore = create<StoreState>((set, get) => {
 
       // Update aids when square is selected
       if (showAids) {
-        aidsEngine.analyze(chess.fen(), (aids) => {
-          set({ aids })
-        })
+        aidsEngine.analyze(chess.fen(), (aids) => set({ aids }))
       }
     },
     makeMove: async (from, to) => {
@@ -237,6 +256,11 @@ export const useGameStore = create<StoreState>((set, get) => {
       } else {
         // Human vs Human mode - just switch sides
         set({ activeSide: activeSide === 'w' ? 'b' : 'w' })
+      }
+
+      // Refresh aids after any move
+      if (get().showAids) {
+        aidsEngine.analyze(get().chess.fen(), (aids) => set({ aids }))
       }
     },
     exportPgn: () => get().chess.pgn(),

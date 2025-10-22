@@ -21,6 +21,7 @@ export function AppShell({ children }: { children: React.ReactNode }): JSX.Eleme
   } = useGameStore()
   const fileRef = useRef<HTMLInputElement>(null)
   const [isDashboardOpen, setIsDashboardOpen] = useState(false)
+  const [isLeftCollapsed, setIsLeftCollapsed] = useState(true)
   const [isMoveListCollapsed, setIsMoveListCollapsed] = useState(false)
 
   // Keyboard shortcuts
@@ -39,11 +40,27 @@ export function AppShell({ children }: { children: React.ReactNode }): JSX.Eleme
     return () => document.removeEventListener('keydown', handleKeyDown)
   }, [])
 
+  const gridCols = isLeftCollapsed
+    ? '40px 1fr minmax(260px,320px)'
+    : 'minmax(260px,320px) 1fr minmax(260px,320px)'
+
   return (
-    <div className="min-h-screen w-full flex flex-col md:grid md:grid-cols-[minmax(260px,320px)_1fr_minmax(260px,320px)] md:grid-rows-[1fr] gap-2 md:gap-4 p-2 md:p-4 max-h-screen overflow-hidden">
-      <aside className="order-1 md:order-1 bg-white/60 dark:bg-black/40 rounded-md p-3 border mb-2 md:mb-0 overflow-y-auto">
+    <div
+      className="min-h-screen w-full flex flex-col md:grid md:grid-rows-[1fr] gap-2 md:gap-4 p-2 md:p-4 max-h-screen overflow-hidden"
+      style={{ gridTemplateColumns: gridCols }}
+    >
+      <aside className={`order-1 md:order-1 bg-white/60 dark:bg-black/40 rounded-md ${isLeftCollapsed ? 'p-1' : 'p-3'} border mb-2 md:mb-0 overflow-y-auto`}
+        style={isLeftCollapsed ? { width: '40px' } : undefined}
+      >
         <div className="font-semibold mb-2 text-sm md:text-base flex items-center justify-between">
-          Settings
+          <button
+            onClick={() => setIsLeftCollapsed(!isLeftCollapsed)}
+            className="text-xs bg-gray-100 dark:bg-gray-800 hover:bg-gray-200 dark:hover:bg-gray-700 px-2 py-1 rounded"
+            title={isLeftCollapsed ? 'Expand quick settings' : 'Collapse quick settings'}
+          >
+            {isLeftCollapsed ? '▶' : '◀'}
+          </button>
+          <span>Settings</span>
           <button
             onClick={() => setIsDashboardOpen(true)}
             className="text-xs bg-gray-100 dark:bg-gray-800 hover:bg-gray-200 dark:hover:bg-gray-700 px-2 py-1 rounded"
@@ -52,6 +69,7 @@ export function AppShell({ children }: { children: React.ReactNode }): JSX.Eleme
             ⚙️
           </button>
         </div>
+        {!isLeftCollapsed && (
         <div className="space-y-2">
           <div>
             <label className="block text-xs md:text-sm mb-1">Trash Talk Tone</label>
@@ -81,7 +99,9 @@ export function AppShell({ children }: { children: React.ReactNode }): JSX.Eleme
             </select>
           </div>
         </div>
+        )}
 
+        {!isLeftCollapsed && (
         <div className="mt-3 space-y-1.5">
           <button
             className="w-full rounded border p-1.5 md:p-2 text-xs md:text-sm bg-blue-50 dark:bg-blue-900/20 hover:bg-blue-100 dark:hover:bg-blue-900/40"
@@ -127,7 +147,9 @@ export function AppShell({ children }: { children: React.ReactNode }): JSX.Eleme
             Flip Board
           </button>
         </div>
+        )}
 
+        {!isLeftCollapsed && (
         <div className="grid grid-cols-2 gap-1.5 mt-3">
           <button
             className="rounded border p-1.5 md:p-2 text-xs md:text-sm bg-gray-50 dark:bg-gray-800 hover:bg-gray-100 dark:hover:bg-gray-700"
@@ -148,6 +170,7 @@ export function AppShell({ children }: { children: React.ReactNode }): JSX.Eleme
             High Contrast
           </button>
         </div>
+        )}
       </aside>
 
       <main className="order-2 md:order-2 flex items-center justify-center flex-1 min-h-0 w-full overflow-hidden">

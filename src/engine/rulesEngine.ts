@@ -54,13 +54,65 @@ export class StandardRules implements RulesEngine {
   }
 }
 
+// Generate a valid Chess960 starting FEN (without castling rights for simplicity)
+export function generateChess960StartFen(): string {
+  const squares = Array.from({ length: 8 }, (_, i) => i)
+  const darkSquares = [0, 2, 4, 6]
+  const lightSquares = [1, 3, 5, 7]
+
+  function take(arr: number[]): number {
+    const idx = Math.floor(Math.random() * arr.length)
+    const v = arr[idx]
+    arr.splice(idx, 1)
+    return v
+  }
+
+  const available = [...squares]
+  const bishops: number[] = []
+  // Place bishops on opposite colors
+  const b1 = darkSquares[Math.floor(Math.random() * darkSquares.length)]
+  bishops.push(b1)
+  available.splice(available.indexOf(b1), 1)
+  const lightAvail = lightSquares.filter(i => available.includes(i))
+  const b2 = lightAvail[Math.floor(Math.random() * lightAvail.length)]
+  bishops.push(b2)
+  available.splice(available.indexOf(b2), 1)
+
+  // Place queen
+  const q = take(available)
+  // Place knights
+  const n1 = take(available)
+  const n2 = take(available)
+  // Remaining three squares are for R K R, king must be between rooks
+  const remaining = available.sort((a, b) => a - b)
+  const r1 = remaining[0]
+  const k = remaining[1]
+  const r2 = remaining[2]
+
+  const back = Array(8).fill('') as string[]
+  back[bishops[0]] = 'B'
+  back[bishops[1]] = 'B'
+  back[q] = 'Q'
+  back[n1] = 'N'
+  back[n2] = 'N'
+  back[r1] = 'R'
+  back[k] = 'K'
+  back[r2] = 'R'
+
+  const whiteBack = back.join('')
+  const blackBack = whiteBack.toLowerCase()
+  const pawns = 'PPPPPPPP'
+  const pawnsBlack = pawns.toLowerCase()
+  // No castling rights here ('-'); halfmove=0 fullmove=1
+  return `${blackBack}/pppppppp/8/8/8/8/PPPPPPPP/${whiteBack} w - - 0 1`
+}
+
 export function createRules(variant: Variant, initialFen?: string): RulesEngine {
   switch (variant) {
     case 'standard':
-    case 'chess960':
-      // For 960 we still use chess.js with provided FEN; enforcement of 960 starting
-      // positions will be handled by supplying a valid FEN on new game.
       return new StandardRules(initialFen)
+    case 'chess960':
+      return new StandardRules(initialFen ?? generateChess960StartFen())
     case 'kingOfTheHill':
     case 'threeCheck':
     case 'horde':

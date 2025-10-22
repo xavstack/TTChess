@@ -17,21 +17,28 @@ export interface GameplayAids {
 export class AidsEngine {
   private worker: Worker | null = null
   private debounceTimer: ReturnType<typeof setTimeout> | null = null
+  private ready: Promise<void>
 
   constructor() {
     if (typeof Worker !== 'undefined') {
       // Dynamic import for Vite worker
-      import('./aidsWorker.ts?worker').then(module => {
-        this.worker = new module.default()
-      }).catch(() => {
-        // Fallback if worker import fails
-        console.warn('Aids worker not available')
-      })
+      this.ready = import('./aidsWorker.ts?worker')
+        .then(module => {
+          this.worker = new module.default()
+        })
+        .catch(() => {
+          console.warn('Aids worker not available')
+        })
+    } else {
+      this.ready = Promise.resolve()
     }
   }
 
   analyze(fen: string, callback: (aids: GameplayAids) => void): void {
-    if (!this.worker) return
+    if (!this.worker) {
+      this.ready.then(() => this.worker && this.analyze(fen, callback))
+      return
+    }
 
     // Debounce analysis requests
     if (this.debounceTimer) {

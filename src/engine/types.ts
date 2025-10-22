@@ -3,8 +3,9 @@
  */
 
 export type EngineRequest =
-  | { type: 'init'; skill: number; depth: number; movetime: number }
+  | { type: 'init'; skill: number; depth: number; movetime: number; chess960?: boolean }
   | { type: 'bestmove'; fen: string }
+  | { type: 'newgame' }
 
 export type EngineResponse =
   | { type: 'ready' }

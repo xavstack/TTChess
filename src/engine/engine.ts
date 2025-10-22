@@ -21,14 +21,16 @@ export const PRESETS: Record<Difficulty, EnginePreset> = {
 export class Engine {
   private worker: Worker | null
   private ready: Promise<void>
+  private chess960: boolean
 
-  constructor(preset: Difficulty) {
+  constructor(preset: Difficulty, opts?: { chess960?: boolean }) {
     const { skill, depth, movetime } = PRESETS[preset]
+    this.chess960 = !!opts?.chess960
     if (typeof Worker !== 'undefined') {
       this.worker = new (EngineWorker as unknown as new () => Worker)()
       this.ready = new Promise(resolve => {
         this.worker!.onmessage = () => resolve()
-        const msg: EngineRequest = { type: 'init', skill, depth, movetime }
+        const msg: EngineRequest = { type: 'init', skill, depth, movetime, chess960: this.chess960 }
         this.worker!.postMessage(msg)
       })
     } else {
@@ -57,5 +59,11 @@ export class Engine {
       const msg: EngineRequest = { type: 'bestmove', fen }
       this.worker!.postMessage(msg)
     })
+  }
+
+  async newGame(): Promise<void> {
+    await this.ready
+    if (!this.worker) return
+    this.worker.postMessage({ type: 'newgame' } satisfies EngineRequest)
   }
 }
