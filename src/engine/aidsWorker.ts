@@ -31,7 +31,7 @@ ctx.onmessage = (e: MessageEvent<AidsRequest>) => {
     try {
       const chess = new Chess(msg.fen)
       
-      // Find best move (simple heuristic)
+      // Find best move (improved heuristic)
       const moves = chess.moves({ verbose: true })
       let bestMove: { from: Square; to: Square; san: string } | undefined
       
@@ -58,6 +58,17 @@ ctx.onmessage = (e: MessageEvent<AidsRequest>) => {
           const centerRanks = ['4', '5']
           if (centerFiles.includes(move.to[0]) && centerRanks.includes(move.to[1])) {
             score += 1
+          }
+
+          // Development bonus: move minor pieces off back rank
+          const backRank = ['1', '8']
+          if ((move.piece === 'n' || move.piece === 'b') && backRank.includes(move.from[1])) {
+            score += 0.5
+          }
+
+          // King safety: penalize early king moves
+          if (move.piece === 'k' && !move.san.includes('O-O')) {
+            score -= 0.5
           }
           
           return { move, score }

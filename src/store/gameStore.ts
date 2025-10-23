@@ -236,7 +236,7 @@ export const useGameStore = create<StoreState>((set, get) => {
         boardVersion: Math.random(),
       })
 
-      // If game over, stop
+      // If game over, stop and trigger game end modal via App effect
       if (chess.isGameOver()) {
         set({ activeSide: null })
         return

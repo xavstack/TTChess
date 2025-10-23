@@ -63,51 +63,6 @@ export function ChessBoard({ playerNames }: ChessBoardProps): JSX.Element {
         )}
 
         <svg viewBox="0 0 8 8" className="w-full h-full">
-          {/* Gameplay aids overlays */}
-          {showAids && (
-            <>
-              {/* Best move arrow */}
-              {aids.bestMove && (
-                <defs>
-                  <marker
-                    id="arrowhead"
-                    markerWidth="10"
-                    markerHeight="7"
-                    refX="9"
-                    refY="3.5"
-                    orient="auto"
-                  >
-                    <polygon points="0 0, 10 3.5, 0 7" fill="#22d3ee" />
-                  </marker>
-                </defs>
-              )}
-              {aids.bestMove && (
-                <line
-                  x1={files.indexOf(aids.bestMove.from[0] as any) + 0.5}
-                  y1={ranks.indexOf(aids.bestMove.from[1] as any) + 0.5}
-                  x2={files.indexOf(aids.bestMove.to[0] as any) + 0.5}
-                  y2={ranks.indexOf(aids.bestMove.to[1] as any) + 0.5}
-                  stroke="#22d3ee"
-                  strokeWidth="0.1"
-                  markerEnd="url(#arrowhead)"
-                />
-              )}
-              
-              {/* Capture circles */}
-              {aids.captures.map((capture, idx) => (
-                <circle
-                  key={idx}
-                  cx={files.indexOf(capture.to[0] as any) + 0.5}
-                  cy={ranks.indexOf(capture.to[1] as any) + 0.5}
-                  r="0.3"
-                  fill="none"
-                  stroke="#ef4444"
-                  strokeWidth="0.08"
-                />
-              ))}
-            </>
-          )}
-
           {Array.from({ length: 8 }).map((_, rankIdx) =>
             Array.from({ length: 8 }).map((_, fileIdx) => {
               const uiFileIdx = flipped ? 7 - fileIdx : fileIdx
@@ -178,6 +133,85 @@ export function ChessBoard({ playerNames }: ChessBoardProps): JSX.Element {
                 </g>
               )
             })
+          )}
+
+          {/* Overlays must render LAST so they appear above pieces */}
+          {/* Check highlight */}
+          {chess.inCheck() && (() => {
+            // Find king square of the side to move
+            const turn = chess.turn()
+            let kingFile = -1
+            let kingRank = -1
+            const grid = chess.board()
+            for (let r = 0; r < 8; r++) {
+              for (let f = 0; f < 8; f++) {
+                const cell = grid[r][f]
+                if (cell && cell.type === 'k' && cell.color === turn) {
+                  kingFile = f
+                  kingRank = r
+                }
+              }
+            }
+            if (kingFile >= 0) {
+              const uiFile = flipped ? 7 - kingFile : kingFile
+              const uiRank = flipped ? 7 - kingRank : kingRank
+              return (
+                <rect
+                  x={uiFile}
+                  y={uiRank}
+                  width={1}
+                  height={1}
+                  fill="none"
+                  stroke="#ef4444"
+                  strokeWidth="0.15"
+                />
+              )
+            }
+            return null
+          })()}
+
+          {/* Gameplay aids overlays */}
+          {showAids && (
+            <>
+              {/* Best move arrow */}
+              {aids.bestMove && (
+                <defs>
+                  <marker
+                    id="arrowhead"
+                    markerWidth="10"
+                    markerHeight="7"
+                    refX="9"
+                    refY="3.5"
+                    orient="auto"
+                  >
+                    <polygon points="0 0, 10 3.5, 0 7" fill="#22d3ee" />
+                  </marker>
+                </defs>
+              )}
+              {aids.bestMove && (
+                <line
+                  x1={files.indexOf(aids.bestMove.from[0] as any) + 0.5}
+                  y1={ranks.indexOf(aids.bestMove.from[1] as any) + 0.5}
+                  x2={files.indexOf(aids.bestMove.to[0] as any) + 0.5}
+                  y2={ranks.indexOf(aids.bestMove.to[1] as any) + 0.5}
+                  stroke="#22d3ee"
+                  strokeWidth="0.1"
+                  markerEnd="url(#arrowhead)"
+                />
+              )}
+              {/* Capture circles */}
+              {aids.captures.map((capture, idx) => (
+                <circle
+                  key={idx}
+                  cx={files.indexOf(capture.to[0] as any) + 0.5}
+                  cy={ranks.indexOf(capture.to[1] as any) + 0.5}
+                  r="0.3"
+                  fill="none"
+                  stroke="#ef4444"
+                  strokeWidth="0.08"
+                />
+              ))}
+            </>
           )}
         </svg>
       </div>
