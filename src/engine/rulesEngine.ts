@@ -101,8 +101,6 @@ export function generateChess960StartFen(): string {
 
   const whiteBack = back.join('')
   const blackBack = whiteBack.toLowerCase()
-  const pawns = 'PPPPPPPP'
-  const pawnsBlack = pawns.toLowerCase()
   // No castling rights here ('-'); halfmove=0 fullmove=1
   return `${blackBack}/pppppppp/8/8/8/8/PPPPPPPP/${whiteBack} w - - 0 1`
 }

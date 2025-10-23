@@ -5,6 +5,9 @@ import { VitePWA } from 'vite-plugin-pwa'
 // https://vite.dev/config/
 export default defineConfig({
   base: '/sideprojects/Games/trash-talk-chess-beta/',
+  worker: {
+    format: 'es'
+  },
   plugins: [
     react(),
     VitePWA({
