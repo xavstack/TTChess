@@ -118,7 +118,7 @@ export const useGameStore = create<StoreState>((set, get) => {
       const rules = createRules(v)
       const fen = rules.getFen()
       const engineAvailable = v === 'standard' || v === 'chess960'
-      // Recreate engine with chess960 flag when needed
+      // Recreate engine with chess960 flag when needed (per UCI docs, Chess960 has special castling rules)
       const currentDifficulty = get().difficulty
       const engine = new Engine(currentDifficulty, { chess960: v === 'chess960' })
       engine.newGame().catch(() => {})
@@ -278,14 +278,14 @@ export const useGameStore = create<StoreState>((set, get) => {
     },
   }
 
-  // Clock ticking interval (guarded and throttled)
-  // Only update store when the displayed whole second changes to reduce re-render churn
+  // Clock ticking interval (guarded)
   ;(function startClockTicker() {
     const g = globalThis as typeof globalThis & {
       __ttcClockTimer?: ReturnType<typeof setInterval>
     }
     if (g.__ttcClockTimer) clearInterval(g.__ttcClockTimer)
-    const TICK_MS = 250
+    // Use 1000ms ticks for visible, predictable countdown
+    const TICK_MS = 1000
     g.__ttcClockTimer = setInterval(() => {
       const { activeSide, timeWhiteMs, timeBlackMs, chess } = get()
       if (!activeSide) return
@@ -296,16 +296,12 @@ export const useGameStore = create<StoreState>((set, get) => {
 
       if (activeSide === 'w') {
         const next = Math.max(0, timeWhiteMs - TICK_MS)
-        if (Math.floor(next / 1000) !== Math.floor(timeWhiteMs / 1000) || next === 0) {
-          set({ timeWhiteMs: next })
-          if (next === 0) set({ activeSide: null })
-        }
+        set({ timeWhiteMs: next })
+        if (next === 0) set({ activeSide: null })
       } else {
         const next = Math.max(0, timeBlackMs - TICK_MS)
-        if (Math.floor(next / 1000) !== Math.floor(timeBlackMs / 1000) || next === 0) {
-          set({ timeBlackMs: next })
-          if (next === 0) set({ activeSide: null })
-        }
+        set({ timeBlackMs: next })
+        if (next === 0) set({ activeSide: null })
       }
     }, TICK_MS)
   })()
