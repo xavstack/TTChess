@@ -32,36 +32,26 @@ export const PIECE_SETS: Record<PieceSet, PieceSetInfo> = {
   }
 }
 
-// Unicode piece mappings for different sets
-const PIECE_UNICODE: Record<PieceSet, Record<string, string>> = {
-  cburnett: {
-    // White pieces
+// We use Unicode glyphs for all sets but style them differently via CSS classes
+export function getPieceUnicode(piece: string): string {
+  const map: Record<string, string> = {
     'P': '♙', 'N': '♘', 'B': '♗', 'R': '♖', 'Q': '♕', 'K': '♔',
-    // Black pieces  
-    'p': '♟', 'n': '♞', 'b': '♝', 'r': '♜', 'q': '♛', 'k': '♚'
-  },
-  merida: {
-    // White pieces (using similar Unicode symbols)
-    'P': '♙', 'N': '♘', 'B': '♗', 'R': '♖', 'Q': '♕', 'K': '♔',
-    // Black pieces
-    'p': '♟', 'n': '♞', 'b': '♝', 'r': '♜', 'q': '♛', 'k': '♚'
-  },
-  alpha: {
-    // White pieces (using geometric symbols)
-    'P': '♙', 'N': '♘', 'B': '♗', 'R': '♖', 'Q': '♕', 'K': '♔',
-    // Black pieces
-    'p': '♟', 'n': '♞', 'b': '♝', 'r': '♜', 'q': '♛', 'k': '♚'
-  },
-  staunty: {
-    // White pieces (traditional Staunton style)
-    'P': '♙', 'N': '♘', 'B': '♗', 'R': '♖', 'Q': '♕', 'K': '♔',
-    // Black pieces
     'p': '♟', 'n': '♞', 'b': '♝', 'r': '♜', 'q': '♛', 'k': '♚'
   }
+  return map[piece] || ''
 }
 
-export function getPieceUnicode(piece: string, set: PieceSet = 'cburnett'): string {
-  return PIECE_UNICODE[set][piece] || ''
+export function getPieceCssClass(set: PieceSet): string {
+  switch (set) {
+    case 'cburnett':
+      return 'fill-current'
+    case 'merida':
+      return 'fill-current drop-shadow-[0_1px_0_rgba(0,0,0,0.25)]'
+    case 'alpha':
+      return 'fill-current tracking-wide'
+    case 'staunty':
+      return 'fill-current italic'
+  }
 }
 
 export function getPieceSetInfo(set: PieceSet): PieceSetInfo {

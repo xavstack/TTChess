@@ -22,6 +22,7 @@ export function AppShell({ children }: { children: React.ReactNode }): JSX.Eleme
   const fileRef = useRef<HTMLInputElement>(null)
   const [isDashboardOpen, setIsDashboardOpen] = useState(false)
   const [isLeftCollapsed, setIsLeftCollapsed] = useState(true)
+  const [isRightCollapsed, setIsRightCollapsed] = useState(false)
   const [isMoveListCollapsed, setIsMoveListCollapsed] = useState(false)
 
   // Keyboard shortcuts
@@ -40,9 +41,10 @@ export function AppShell({ children }: { children: React.ReactNode }): JSX.Eleme
     return () => document.removeEventListener('keydown', handleKeyDown)
   }, [])
 
+  const rightCol = isRightCollapsed ? '0px' : 'minmax(260px,320px)'
   const gridCols = isLeftCollapsed
-    ? '40px 1fr minmax(260px,320px)'
-    : 'minmax(260px,320px) 1fr minmax(260px,320px)'
+    ? `40px 1fr ${rightCol}`
+    : `minmax(260px,320px) 1fr ${rightCol}`
 
   return (
     <div
@@ -182,17 +184,31 @@ export function AppShell({ children }: { children: React.ReactNode }): JSX.Eleme
         </div>
       </main>
 
-      <aside className="order-3 bg-white/60 dark:bg-black/40 rounded-md p-3 border flex flex-col mt-2 md:mt-0 overflow-y-auto">
-        {/* Clock Panel */}
-        <ClockPanel />
+      <aside className={`order-3 bg-white/60 dark:bg-black/40 rounded-md p-3 border flex flex-col mt-2 md:mt-0 overflow-y-auto transition-all`} style={{ width: isRightCollapsed ? 0 : undefined, padding: isRightCollapsed ? 0 : undefined, overflow: isRightCollapsed ? 'hidden' : undefined }}>
+        <div className="flex items-center justify-between mb-2">
+          <div className="font-semibold text-sm md:text-base">Clocks</div>
+          <button
+            onClick={() => setIsRightCollapsed(!isRightCollapsed)}
+            className="text-xs bg-gray-100 dark:bg-gray-800 hover:bg-gray-200 dark:hover:bg-gray-700 px-2 py-1 rounded"
+            title={isRightCollapsed ? 'Expand panel' : 'Collapse panel'}
+          >
+            {isRightCollapsed ? '◀' : '▶'}
+          </button>
+        </div>
+        {!isRightCollapsed && <ClockPanel />}
 
+        {!isRightCollapsed && (
+        <>
         <div className="font-semibold mb-2 text-sm md:text-base mt-4">Avatar</div>
-        <div className="mt-auto">
+        <div className="mt-auto space-y-2">
+          <img src="/clease.png" alt="avatar" className="w-full rounded-md border" onError={(e) => { (e.target as HTMLImageElement).style.display = 'none' }} />
           <div className="text-xs md:text-sm opacity-70 mb-1">Trash Talk</div>
           <div className="rounded-md border p-2 md:p-3 min-h-[48px] md:min-h-[64px] bg-white dark:bg-black text-xs md:text-sm">
             {lastTaunt ?? '…'}
           </div>
         </div>
+        </>
+        )}
 
         {/* Move List */}
         <div className="mt-4">

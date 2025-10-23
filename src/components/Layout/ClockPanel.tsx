@@ -107,6 +107,18 @@ export default function ClockPanel(): JSX.Element {
     }
   }
 
+  // Auto-flip to white immediately after AI move completed
+  // We detect this by ensuring that after a brief delay, if it's white's turn but activeSide is 'b', flip.
+  useEffect(() => {
+    const id = setInterval(() => {
+      const { chess, activeSide } = useGameStore.getState()
+      if (activeSide === 'b' && chess.turn() === 'w') {
+        useGameStore.getState().setActiveSide('w')
+      }
+    }, 200)
+    return () => clearInterval(id)
+  }, [])
+
   return (
     <div className="space-y-2">
       <div className="font-semibold mb-2 text-sm md:text-base">Clocks</div>

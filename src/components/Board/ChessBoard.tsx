@@ -1,7 +1,7 @@
 import type { JSX } from 'react'
 import { useMemo } from 'react'
 import { useGameStore } from '../../store/gameStore'
-import { getPieceUnicode } from '../../utils/pieceSets'
+import { getPieceUnicode, getPieceCssClass } from '../../utils/pieceSets'
 import { motion, AnimatePresence } from 'framer-motion'
 import type { Square } from 'chess.js'
 
@@ -70,7 +70,7 @@ export function ChessBoard({ playerNames }: ChessBoardProps): JSX.Element {
               const sq = squareName(uiFileIdx, uiRankIdx)
               const cell = board[uiRankIdx][uiFileIdx]
               const piece = cell
-                ? getPieceUnicode((cell.color === 'w' ? cell.type.toUpperCase() : cell.type) as string, pieceSet)
+                ? getPieceUnicode((cell.color === 'w' ? cell.type.toUpperCase() : cell.type) as string)
                 : ''
               const isSel = selected === sq
               const isTarget = legalTargets.includes(sq)
@@ -115,11 +115,11 @@ export function ChessBoard({ playerNames }: ChessBoardProps): JSX.Element {
                   <AnimatePresence>
                     {piece && (
                       <motion.text
-                        key={`${sq}-${piece}`}
+                        key={`${sq}-${pieceSet}-${piece}`}
                         x={fileIdx + 0.5}
                         y={rankIdx + 0.68}
                         textAnchor="middle"
-                        className="select-none"
+                        className={`select-none ${getPieceCssClass(pieceSet)}`}
                         fontSize={0.8}
                         initial={{ opacity: 0, scale: 0.9 }}
                         animate={{ opacity: 1, scale: 1 }}
@@ -184,7 +184,7 @@ export function ChessBoard({ playerNames }: ChessBoardProps): JSX.Element {
                     refY="3.5"
                     orient="auto"
                   >
-                    <polygon points="0 0, 10 3.5, 0 7" fill="#22d3ee" />
+                    <polygon points="0 0, 10 3.5, 0 7" fill="#06b6d4" />
                   </marker>
                 </defs>
               )}
@@ -194,8 +194,9 @@ export function ChessBoard({ playerNames }: ChessBoardProps): JSX.Element {
                   y1={ranks.indexOf(aids.bestMove.from[1] as any) + 0.5}
                   x2={files.indexOf(aids.bestMove.to[0] as any) + 0.5}
                   y2={ranks.indexOf(aids.bestMove.to[1] as any) + 0.5}
-                  stroke="#22d3ee"
-                  strokeWidth="0.1"
+                  stroke="#06b6d4"
+                  strokeOpacity={0.55}
+                  strokeWidth="0.08"
                   markerEnd="url(#arrowhead)"
                 />
               )}
@@ -206,9 +207,11 @@ export function ChessBoard({ playerNames }: ChessBoardProps): JSX.Element {
                   cx={files.indexOf(capture.to[0] as any) + 0.5}
                   cy={ranks.indexOf(capture.to[1] as any) + 0.5}
                   r="0.3"
-                  fill="none"
+                  fill="#ef4444"
+                  fillOpacity={0.16}
                   stroke="#ef4444"
-                  strokeWidth="0.08"
+                  strokeOpacity={0.5}
+                  strokeWidth="0.06"
                 />
               ))}
             </>
