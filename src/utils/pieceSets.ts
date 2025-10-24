@@ -1,7 +1,7 @@
 // Piece set definitions with Unicode symbols
 // All sets use free Unicode chess symbols - no attribution required
 
-export type PieceSet = 'cburnett' | 'merida' | 'alpha' | 'staunty'
+export type PieceSet = 'cburnett' | 'merida' | 'alpha' | 'staunty' | 'sketch'
 
 export interface PieceSetInfo {
   name: string
@@ -29,6 +29,11 @@ export const PIECE_SETS: Record<PieceSet, PieceSetInfo> = {
     name: 'Staunty',
     description: 'Traditional Staunton style',
     attribution: 'Free Unicode symbols'
+  },
+  sketch: {
+    name: 'Sketch PNG',
+    description: 'Hand-drawn PNG pieces',
+    attribution: 'User-provided PNGs'
   }
 }
 
@@ -51,7 +56,23 @@ export function getPieceCssClass(set: PieceSet): string {
       return 'fill-current tracking-wide'
     case 'staunty':
       return 'fill-current italic'
+    case 'sketch':
+      return 'fill-current'
   }
+}
+
+// Optional asset-based piece set support (PNG). Returns image URL when available.
+export function getPieceAsset(set: PieceSet, piece: string): string | null {
+  if (set !== 'sketch') return null
+  const isWhite = piece === piece.toUpperCase()
+  const prefix = isWhite ? 'white' : 'black'
+  const typeMap: Record<string, string> = {
+    'P': 'pawn', 'N': 'knight', 'B': 'bishop', 'R': 'castle', 'Q': 'queen', 'K': 'king',
+    'p': 'pawn', 'n': 'knight', 'b': 'bishop', 'r': 'castle', 'q': 'queen', 'k': 'king'
+  }
+  const type = typeMap[piece]
+  if (!type) return null
+  return `/chess_pieces_pngs/${prefix}_${type}.png`
 }
 
 export function getPieceSetInfo(set: PieceSet): PieceSetInfo {

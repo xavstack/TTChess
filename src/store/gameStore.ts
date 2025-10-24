@@ -202,6 +202,7 @@ export const useGameStore = create<StoreState>((set, get) => {
       set({ difficulty: d, engine })
     },
     toggleFlip: () => set(s => ({ flipped: !s.flipped })),
+    // Pause/unpause with P key: when paused, activeSide becomes null but we keep who was active in localStorage
     selectSquare: sq => {
       const { chess, showAids } = get()
       if (!sq) {

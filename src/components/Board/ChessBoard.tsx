@@ -1,7 +1,7 @@
 import type { JSX } from 'react'
 import { useMemo } from 'react'
 import { useGameStore } from '../../store/gameStore'
-import { getPieceUnicode, getPieceCssClass } from '../../utils/pieceSets'
+import { getPieceUnicode, getPieceCssClass, getPieceAsset } from '../../utils/pieceSets'
 import { motion, AnimatePresence } from 'framer-motion'
 import type { Square } from 'chess.js'
 
@@ -62,7 +62,7 @@ export function ChessBoard({ playerNames }: ChessBoardProps): JSX.Element {
           </div>
         )}
 
-        <svg viewBox="0 0 8 8" className="w-full h-full">
+        <svg viewBox="0 0 8 8" className="w-full h-full" style={{ pointerEvents: 'none' }}>
           {Array.from({ length: 8 }).map((_, rankIdx) =>
             Array.from({ length: 8 }).map((_, fileIdx) => {
               const uiFileIdx = flipped ? 7 - fileIdx : fileIdx
@@ -103,6 +103,7 @@ export function ChessBoard({ playerNames }: ChessBoardProps): JSX.Element {
                           ? 'fill-board-dark'
                           : 'fill-board-light'
                     }
+                    style={{ pointerEvents: 'auto' }}
                   />
                   {isTarget && (
                     <circle
@@ -110,24 +111,49 @@ export function ChessBoard({ playerNames }: ChessBoardProps): JSX.Element {
                       cy={rankIdx + 0.5}
                       r={0.12}
                       className="fill-black/40"
+                      style={{ pointerEvents: 'none' }}
                     />
                   )}
                   <AnimatePresence>
                     {piece && (
-                      <motion.text
-                        key={`${sq}-${pieceSet}-${piece}`}
-                        x={fileIdx + 0.5}
-                        y={rankIdx + 0.68}
-                        textAnchor="middle"
-                        className={`select-none ${getPieceCssClass(pieceSet)}`}
-                        fontSize={0.8}
-                        initial={{ opacity: 0, scale: 0.9 }}
-                        animate={{ opacity: 1, scale: 1 }}
-                        exit={{ opacity: 0 }}
-                        transition={{ duration: 0.2 }}
-                      >
-                        {piece}
-                      </motion.text>
+                      (() => {
+                        const asset = getPieceAsset(pieceSet, (cell!.color === 'w' ? cell!.type.toUpperCase() : cell!.type) as string)
+                        if (asset) {
+                          return (
+                            <motion.image
+                              key={`${sq}-${pieceSet}-${piece}`}
+                              href={asset}
+                              x={fileIdx + 0.05}
+                              y={rankIdx + 0.05}
+                              width={0.9}
+                              height={0.9}
+                              preserveAspectRatio="xMidYMid meet"
+                              initial={{ opacity: 0, scale: 0.9 }}
+                              animate={{ opacity: 1, scale: 1 }}
+                              exit={{ opacity: 0 }}
+                              transition={{ duration: 0.35 }}
+                              style={{ pointerEvents: 'none' }}
+                            />
+                          )
+                        }
+                        return (
+                          <motion.text
+                            key={`${sq}-${pieceSet}-${piece}`}
+                            x={fileIdx + 0.5}
+                            y={rankIdx + 0.68}
+                            textAnchor="middle"
+                            className={`select-none ${getPieceCssClass(pieceSet)}`}
+                            fontSize={0.8}
+                        initial={{ opacity: 0, scale: 0.9, x: 0, y: 0 }}
+                        animate={{ opacity: 1, scale: 1, x: 0, y: 0 }}
+                            exit={{ opacity: 0 }}
+                        transition={{ duration: 0.5 }}
+                            style={{ pointerEvents: 'none' }}
+                          >
+                            {piece}
+                          </motion.text>
+                        )
+                      })()
                     )}
                   </AnimatePresence>
                 </g>

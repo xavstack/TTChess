@@ -35,6 +35,17 @@ export function AppShell({ children }: { children: React.ReactNode }): JSX.Eleme
       if (e.key === 'Escape') {
         setIsDashboardOpen(false)
       }
+      if (e.key.toLowerCase() === 'p' && !e.ctrlKey && !e.metaKey) {
+        // Pause/unpause: toggle activeSide null <-> 'w'
+        const { activeSide, setActiveSide } = useGameStore.getState()
+        if (activeSide) {
+          setActiveSide(null)
+        } else {
+          // Resume to side to move
+          const { chess } = useGameStore.getState()
+          setActiveSide(chess.turn())
+        }
+      }
     }
 
     document.addEventListener('keydown', handleKeyDown)
@@ -218,6 +229,17 @@ export function AppShell({ children }: { children: React.ReactNode }): JSX.Eleme
           />
         </div>
       </aside>
+
+      {/* Floating expand button when right panel is collapsed */}
+      {isRightCollapsed && (
+        <button
+          onClick={() => setIsRightCollapsed(false)}
+          className="fixed right-2 top-1/2 -translate-y-1/2 z-50 bg-gray-100 dark:bg-gray-800 hover:bg-gray-200 dark:hover:bg-gray-700 border rounded-md px-2 py-1 text-xs"
+          title="Expand right panel"
+        >
+          ◀
+        </button>
+      )}
 
       <Dashboard isOpen={isDashboardOpen} onClose={() => setIsDashboardOpen(false)} />
     </div>
