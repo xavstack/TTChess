@@ -1,6 +1,6 @@
 # Manual UI Test List: Trash-Talk Chess v0.2_unverified
 
-## Test Environment Setup
+## Test Environment Setup 
 - **Browser**: Chrome/Firefox/Safari (latest versions)
 - **Device**: Desktop (1920x1080) and Mobile (375x667)
 - **Mode**: Development server (`npm run dev`)
