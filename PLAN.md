@@ -50,9 +50,9 @@ Acceptance: Play one full move pair and hear a taunt.
 Acceptance Criteria: All v1 features implemented; tests pass; PWA installable; offline play works; README accurate.
 
 ## M6 — vNext UX, Variants, and Aids (Planning)
-- [ ] Unified dashboard menu (overlay) toggled from side panel and hotkey
-  - Bundles all settings: tone, difficulty, themes, variants, aids, clocks, import/export
-  - Accessible (focus-trap, ESC close, ARIA labels); responsive on mobile
+- [x] Unified settings in left sidebar (hotkey `/` opens, `Esc` collapses)
+  - Bundles tone, difficulty, themes, variants, aids, import/export, utilities
+  - Accessible and responsive; avoids modal complexity
 - [ ] Player names at top/bottom; layout respects ≤98vh and ≥98% utilization
   - Use CSS clamp + `aspect-ratio` with safe-area insets; test on mobile/desktop
 - [ ] Game variants (phase 1)

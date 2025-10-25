@@ -1,3 +1,4 @@
+
 # Codebase Review - Trash-Talk Chess v1
 
 ## Priority 1: Critical Issues (FIXED)
@@ -8,8 +9,8 @@
 
 ## Priority 2: Engine & Performance
 
-- **Stockfish WASM**: Currently using random fallback; integrate actual WASM binary for real chess strength
-- **Worker optimization**: Add skill/depth/hash parameters for better difficulty scaling
+- **Engine**: Browser-compatible skill-based AI implemented in `src/engine/engineWorker.ts`; Stockfish WASM can be dropped into `public/stockfish.wasm(.js)` and wired by the worker when available.
+- **Worker optimization**: Difficulty presets (skill/depth/movetime) in `src/engine/types.ts` and `src/engine/engine.ts`.
 - **Move animations**: Basic piece animations exist; add capture fade, check pulse, mate confetti
 
 ## Priority 3: UX Polish
@@ -39,9 +40,23 @@
 - **Bundle optimization**: Consider code splitting for engine worker
 - **PWA caching**: Explicitly cache engine WASM when available
 
+## Map — Where Things Live
+
+- Engine façade: `src/engine/engine.ts`
+- Engine worker (AI logic): `src/engine/engineWorker.ts`
+- Engine types & presets: `src/engine/types.ts`
+- Variants and FEN generation: `src/engine/rulesEngine.ts`
+- Aids worker façade: `src/engine/aidsEngine.ts`
+- Store (Zustand): `src/store/gameStore.ts`
+- Board & overlays: `src/components/Board/ChessBoard.tsx`
+- Layout shell (sidebars, clocks, avatar): `src/components/Layout/AppShell.tsx`
+- Clocks: `src/components/Layout/ClockPanel.tsx`
+- Move list: `src/components/Layout/MoveList.tsx`
+- Trash talk data/logic: `src/trashTalk/pieceMap.ts`, `src/trashTalk/selector.ts`, `src/trashTalk/tts.ts`
+- Piece sets (Unicode styles): `src/utils/pieceSets.ts`
+
 ## Notes
 
 - All core features implemented and working
-- Tests passing with proper mocking
-- PWA build successful with offline capabilities
-- Ready for production with responsive fixes
+- Build succeeds; PWA configured
+- Manual test list in `MANUAL_UI_TESTS_v0.2.md`

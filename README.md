@@ -20,14 +20,29 @@ npm run dev
 
 ## Features (v1)
 
-- Human vs AI (Stockfish WASM worker)
+- Human vs AI (Engine in Web Worker; Stockfish WASM binary optional drop-in under `public/`)
 - Legal moves, check/mate/stalemate, draw rules
 - PGN export/import, undo (last pair), flip board
-- Clocks
+- Clocks with auto-flip after AI move
 - Themes: light / dark / high-contrast
 - Animations: move slide, capture fade, check pulse, mate confetti (toggle)
 - PWA installable & offline
 - Trash talk after each move using Web Speech API; tone Off / PG-13 / Spicy; no repeats within last 5; debounce 1.5s; cancel on next move
+
+## Settings Overview
+
+All settings are consolidated in the left collapsible sidebar:
+
+- Engine: Difficulty presets (`Beginner` to `Insane`)
+- Variants: `standard`, `chess960` (AI), `kingOfTheHill`, `threeCheck`, `horde` (human-only)
+- Board: Coordinates toggle, board theme (5 palettes), piece set (Unicode styles)
+- Aids: Best-move arrow and capture circles toggle
+- Trash talk: Tone (Off/PG-13/Spicy), taunt on AI moves
+- Utilities: Export/Import PGN, Undo Pair, Flip board, Theme/High-contrast
+
+Hotkeys:
+- `/` open the left sidebar; `Esc` collapses it
+- `P` pause/resume clocks
 
 ## Controls
 
@@ -46,4 +61,4 @@ React + Vite + TypeScript; Zustand; chess.js; Stockfish WASM (Web Worker); Tailw
 - Type-check: `npm run typecheck`
 - Format: `npm run format`
 
-See `PLAN.md`, `TRACK.md`, `DECISIONS.md`, and `CONTRIBUTING.md` for more.
+See `PLAN.md`, `TRACK.md`, `DECISIONS.md`, and `CONTRIBUTING.md` for more. For file locations, consult CODEBASE_REVIEW.md.

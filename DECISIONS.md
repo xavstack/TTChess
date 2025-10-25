@@ -30,12 +30,11 @@
 
 - generateSW with Workbox; runtime caching via Stale-While-Revalidate for app routes/assets; manifest links and icons provided.
 
-## ADR-006: Unified Dashboard Menu (Overlay)
+## ADR-006: Unified Settings in Left Sidebar (Revised)
 
-- Use a modal overlay mounted at root with a focus trap and ESC to close.
-- Triggered from side panel button and keyboard shortcut (`/` tentative); persisted open state not required.
-- Contents: settings groups (Audio/Taunts, Engine, Themes, Variants, Aids, Clocks, Import/Export, About).
-- Rationale: consolidate discoverability and ensure accessibility across breakpoints.
+- Consolidate all settings into the collapsible left sidebar. `/` opens the sidebar; `Esc` collapses.
+- Settings include Audio/Taunts, Engine, Variants, Board, Aids, Import/Export, Utilities.
+- Rationale: reduces modal complexity, keeps controls one click away, simplifies accessibility.
 
 ## ADR-007: Layout and Viewport Constraints
 
