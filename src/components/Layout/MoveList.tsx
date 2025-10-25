@@ -33,7 +33,7 @@ export default function MoveList({ isCollapsed = false, onToggle }: MoveListProp
   const handleJumpToMove = (moveNumber: number) => {
     setJumpToMove(moveNumber)
     // Reset board to that position
-    const history = (chess as any).history({ verbose: true })
+    const history = chess.history({ verbose: true })
     const targetIndex = (moveNumber - 1) * 2
     
     // Reset and replay moves up to target

@@ -216,10 +216,10 @@ export function ChessBoard({ playerNames }: ChessBoardProps): JSX.Element {
               )}
               {aids.bestMove && (
                 <line
-                  x1={files.indexOf(aids.bestMove.from[0] as any) + 0.5}
-                  y1={ranks.indexOf(aids.bestMove.from[1] as any) + 0.5}
-                  x2={files.indexOf(aids.bestMove.to[0] as any) + 0.5}
-                  y2={ranks.indexOf(aids.bestMove.to[1] as any) + 0.5}
+                  x1={files.indexOf(aids.bestMove.from[0] as unknown as typeof files[number]) + 0.5}
+                  y1={ranks.indexOf(aids.bestMove.from[1] as unknown as typeof ranks[number]) + 0.5}
+                  x2={files.indexOf(aids.bestMove.to[0] as unknown as typeof files[number]) + 0.5}
+                  y2={ranks.indexOf(aids.bestMove.to[1] as unknown as typeof ranks[number]) + 0.5}
                   stroke="#06b6d4"
                   strokeOpacity={0.55}
                   strokeWidth="0.08"
@@ -230,8 +230,8 @@ export function ChessBoard({ playerNames }: ChessBoardProps): JSX.Element {
               {aids.captures.map((capture, idx) => (
                 <circle
                   key={idx}
-                  cx={files.indexOf(capture.to[0] as any) + 0.5}
-                  cy={ranks.indexOf(capture.to[1] as any) + 0.5}
+                  cx={files.indexOf(capture.to[0] as unknown as typeof files[number]) + 0.5}
+                  cy={ranks.indexOf(capture.to[1] as unknown as typeof ranks[number]) + 0.5}
                   r="0.3"
                   fill="#ef4444"
                   fillOpacity={0.16}

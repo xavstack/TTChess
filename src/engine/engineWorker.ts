@@ -8,7 +8,7 @@ let skill = 5
 let movetime = 300
 
 // Simple evaluation function for move selection
-function evaluateMove(chess: Chess, move: any, skill: number): number {
+function evaluateMove(chess: Chess, move: ReturnType<Chess['moves']>[number], skill: number): number {
   let score = Math.random() * (21 - skill) // Add randomness based on skill
 
   // Piece values
@@ -82,7 +82,7 @@ ctx.onmessage = (e: MessageEvent<EngineRequest>) => {
       }
 
       // Evaluate all moves
-      const scoredMoves = moves.map(move => ({
+      const scoredMoves = moves.map((move) => ({
         move,
         score: evaluateMove(chess, move, skill)
       }))
