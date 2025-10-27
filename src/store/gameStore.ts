@@ -8,6 +8,8 @@ import { createRules, type Variant } from '../engine/rulesEngine'
 import { AidsEngine, type GameplayAids } from '../engine/aidsEngine'
 import type { PieceSet } from '../utils/pieceSets'
 
+const INITIAL_TIME_MS = 5 * 60 * 1000
+
 export type UiMove = {
   from: Square
   to: Square
@@ -46,13 +48,15 @@ type StoreState = {
   tauntEngineMoves: boolean
   setTauntEngineMoves: (enabled: boolean) => void
   selectSquare: (sq: Square | null) => void
-  makeMove: (from: Square, to: Square) => void
+  makeMove: (from: Square, to: Square) => Promise<void>
+  engineMove: () => Promise<void>
   setTone: (tone: EffectiveTone) => void
   setDifficulty: (d: Difficulty) => void
   toggleFlip: () => void
   exportPgn: () => string
   importPgn: (text: string) => void
   undoPair: () => void
+  resetGame: () => void
 }
 
 function getLegalTargets(chess: Chess, from: Square): Square[] {
@@ -81,7 +85,17 @@ function maybeTaunt(move: UiMove, tone: EffectiveTone): string | null {
 
 export const useGameStore = create<StoreState>((set, get) => {
   const aidsEngine = new AidsEngine()
-  
+
+  const refreshAids = () => {
+    if (!get().showAids) return
+    const { chess } = get()
+    aidsEngine.analyze(chess.fen(), aids => set({ aids }))
+  }
+
+  const clearAids = () => {
+    set({ aids: { captures: [] } })
+  }
+
   const initial: StoreState = {
     chess: new Chess(),
     selected: null,
@@ -106,8 +120,8 @@ export const useGameStore = create<StoreState>((set, get) => {
     })(),
     engine: new Engine('Casual'),
     flipped: false,
-    timeWhiteMs: 5 * 60 * 1000,
-    timeBlackMs: 5 * 60 * 1000,
+    timeWhiteMs: INITIAL_TIME_MS,
+    timeBlackMs: INITIAL_TIME_MS,
     activeSide: null,
     variant: ((): Variant => {
       const saved = localStorage.getItem('ttc_variant_v1') as Variant | null
@@ -130,6 +144,10 @@ export const useGameStore = create<StoreState>((set, get) => {
         boardVersion: Math.random(),
         activeSide: null,
       })
+      clearAids()
+      if (get().showAids) {
+        refreshAids()
+      }
     },
     isEngineAvailable: ((): boolean => {
       const saved = localStorage.getItem('ttc_variant_v1') as Variant | null
@@ -164,10 +182,9 @@ export const useGameStore = create<StoreState>((set, get) => {
       localStorage.setItem('ttc_show_aids_v1', show ? 'true' : 'false')
       set({ showAids: show })
       if (show) {
-        const { chess } = get()
-        aidsEngine.analyze(chess.fen(), (aids) => set({ aids }))
+        refreshAids()
       } else {
-        set({ aids: { captures: [] } })
+        clearAids()
       }
     },
     aids: { captures: [] },
@@ -223,10 +240,11 @@ export const useGameStore = create<StoreState>((set, get) => {
       const move = chess.move({ from, to, promotion: 'q' })
       if (!move) return
 
-      // Start clock on first human move
-      if (activeSide === null) set({ activeSide: 'b' })
+      if (activeSide === null) {
+        set({ activeSide: 'b' })
+      }
 
-      cancelSpeech() // cancel if a previous line is mid-utterance
+      cancelSpeech()
       const uiMove = moveToUi(move)
 
       const taunt = maybeTaunt(uiMove, tone)
@@ -237,32 +255,99 @@ export const useGameStore = create<StoreState>((set, get) => {
         boardVersion: Math.random(),
       })
 
-      // If game over, stop and trigger game end modal via App effect
       if (chess.isGameOver()) {
         set({ activeSide: null })
+        refreshAids()
         return
       }
 
-      // Engine reply only if available for this variant
       if (isEngineAvailable) {
-        const best = await engine.bestMove(chess.fen())
-        const reply = chess.move({ from: best.from as Square, to: best.to as Square, promotion: 'q' })
-        if (!reply) return
-        const uiReply = moveToUi(reply)
-        const taunt2 = tauntEngineMoves ? maybeTaunt(uiReply, tone) : null
-        set({ lastTaunt: taunt2 ?? null, boardVersion: Math.random(), activeSide: 'b' })
-        // Immediately give turn back to human
-        set({ activeSide: 'w' })
-        if (chess.isGameOver()) set({ activeSide: null })
+        try {
+          const best = await engine.bestMove(chess.fen())
+          const reply = chess.move({
+            from: best.from as Square,
+            to: best.to as Square,
+            promotion: 'q',
+          })
+          if (!reply) {
+            set({ activeSide: null })
+            refreshAids()
+            return
+          }
+          const uiReply = moveToUi(reply)
+          const taunt2 = tauntEngineMoves ? maybeTaunt(uiReply, tone) : null
+          set({ lastTaunt: taunt2 ?? null, boardVersion: Math.random(), activeSide: 'b' })
+          set({ activeSide: 'w' })
+          if (chess.isGameOver()) {
+            set({ activeSide: null })
+          }
+        } catch (error) {
+          const err = error as { code?: string; message?: string }
+          const message = err?.message ?? ''
+          if (err?.code === 'NO_MOVE' || /no legal move/i.test(message)) {
+            set({ activeSide: null })
+            refreshAids()
+            return
+          }
+          set({ activeSide: null })
+          refreshAids()
+          throw error
+        }
       } else {
-        // Human vs Human mode - just switch sides
         set({ activeSide: activeSide === 'w' ? 'b' : 'w' })
       }
 
-      // Refresh aids after any move
-      if (get().showAids) {
-        aidsEngine.analyze(get().chess.fen(), (aids) => set({ aids }))
+      refreshAids()
+    },
+    engineMove: async () => {
+      const { chess, engine, tauntEngineMoves, tone, isEngineAvailable } = get()
+      if (!isEngineAvailable) return
+
+      if (chess.isGameOver()) {
+        set({ activeSide: null })
+        refreshAids()
+        return
       }
+
+      const thinkingSide = chess.turn()
+      cancelSpeech()
+      set({ selected: null, legalTargets: [], activeSide: thinkingSide })
+
+      try {
+        const best = await engine.bestMove(chess.fen())
+        const reply = chess.move({
+          from: best.from as Square,
+          to: best.to as Square,
+          promotion: 'q',
+        })
+        if (!reply) {
+          set({ activeSide: null })
+          refreshAids()
+          return
+        }
+
+        const uiReply = moveToUi(reply)
+        const taunt = tauntEngineMoves ? maybeTaunt(uiReply, tone) : null
+        const nextSide = chess.isGameOver() ? null : chess.turn()
+        set({
+          lastTaunt: taunt ?? null,
+          boardVersion: Math.random(),
+          activeSide: nextSide,
+        })
+      } catch (error) {
+        const err = error as { code?: string; message?: string }
+        const message = err?.message ?? ''
+        if (err?.code === 'NO_MOVE' || /no legal move/i.test(message)) {
+          set({ activeSide: null })
+          refreshAids()
+          return
+        }
+        set({ activeSide: null })
+        refreshAids()
+        throw error
+      }
+
+      refreshAids()
     },
     exportPgn: () => get().chess.pgn(),
     importPgn: (text: string) => {
@@ -276,6 +361,32 @@ export const useGameStore = create<StoreState>((set, get) => {
       c.undo()
       c.undo()
       set({ boardVersion: Math.random() })
+    },
+    resetGame: () => {
+      const { variant, engine, showAids } = get()
+      const rules = createRules(variant)
+      const freshFen = rules.getFen()
+      const freshChess = new Chess(freshFen)
+
+      cancelSpeech()
+
+      set({
+        chess: freshChess,
+        selected: null,
+        legalTargets: [],
+        lastTaunt: null,
+        boardVersion: Math.random(),
+        activeSide: null,
+        timeWhiteMs: INITIAL_TIME_MS,
+        timeBlackMs: INITIAL_TIME_MS,
+      })
+
+      engine.newGame().catch(() => {})
+
+      clearAids()
+      if (showAids) {
+        refreshAids()
+      }
     },
   }
 

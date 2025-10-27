@@ -18,6 +18,6 @@ describe('gameStore + engine contract', () => {
 
     // sanity: resulting FEN should be legal
     const c = new Chess(fenAfter)
-    expect(c.in_checkmate() || c.in_draw() || c.moves().length >= 0).toBe(true)
+    expect(c.isCheckmate() || c.isDraw() || c.moves().length >= 0).toBe(true)
   })
 })
