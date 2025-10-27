@@ -3,13 +3,17 @@
  */
 
 export type EngineRequest =
-  | { type: 'init'; skill: number; depth: number; movetime: number; chess960?: boolean }
+  | { type: 'setoptions'; skill?: number; depth?: number; movetime?: number }
   | { type: 'bestmove'; fen: string }
   | { type: 'newgame' }
 
-export type EngineResponse =
-  | { type: 'ready' }
-  | { type: 'bestmove'; san: string; from: string; to: string }
+export type ReadyResponse = { type: 'ready' }
+
+export type BestMoveResponse = { type: 'bestmove'; san: string; from: string; to: string }
+
+export type ErrorResponse = { type: 'error'; message: string; code?: string }
+
+export type EngineResponse = ReadyResponse | BestMoveResponse | ErrorResponse
 
 export type Difficulty = 'Beginner' | 'Casual' | 'Challenging' | 'Hard' | 'Insane'
 
@@ -24,4 +28,3 @@ export interface BestMoveResult {
   to: string
   san: string
 }
-

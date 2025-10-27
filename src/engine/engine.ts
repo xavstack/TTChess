@@ -1,11 +1,13 @@
-import EngineWorker from './engineWorker.ts?worker'
 import { Chess } from 'chess.js'
+import EngineWorker from './engineWorker.ts?worker'
 import type {
+  BestMoveResponse,
+  BestMoveResult,
   Difficulty,
   EnginePreset,
-  BestMoveResult,
   EngineRequest,
   EngineResponse,
+  ErrorResponse,
 } from './types'
 
 export type { Difficulty, BestMoveResult }
@@ -18,52 +20,145 @@ export const PRESETS: Record<Difficulty, EnginePreset> = {
   Insane: { skill: 20, depth: 18, movetime: 1200 },
 }
 
-export class Engine {
-  private worker: Worker | null
-  private ready: Promise<void>
-  private chess960: boolean
+class EngineRequestError extends Error {
+  code?: string
 
-  constructor(preset: Difficulty, opts?: { chess960?: boolean }) {
-    const { skill, depth, movetime } = PRESETS[preset]
-    this.chess960 = !!opts?.chess960
-    if (typeof Worker !== 'undefined') {
+  constructor(message: string, code?: string) {
+    super(message)
+    this.name = 'EngineRequestError'
+    this.code = code
+  }
+}
+
+type PendingMove = {
+  resolve: (result: BestMoveResult) => void
+  reject: (reason: unknown) => void
+}
+
+export class Engine {
+  public readonly ready: Promise<void>
+
+  private readonly preset: EnginePreset
+  private worker: Worker | null
+  private readonly handleMessageBound: (event: MessageEvent<EngineResponse>) => void
+  private resolveReady?: () => void
+  private readyAcknowledged = false
+  private pendingMove: PendingMove | null = null
+
+  constructor(preset: Difficulty = 'Casual', _opts?: { chess960?: boolean }) {
+    const presetConfig = PRESETS[preset]
+    if (!presetConfig) {
+      throw new Error(`Unknown difficulty preset "${preset}"`)
+    }
+
+    this.preset = presetConfig
+    this.handleMessageBound = this.handleMessage.bind(this)
+
+    try {
       this.worker = new (EngineWorker as unknown as new () => Worker)()
+    } catch {
+      this.worker = null
+    }
+
+    if (this.worker) {
+      this.worker.onmessage = this.handleMessageBound
       this.ready = new Promise(resolve => {
-        this.worker!.onmessage = () => resolve()
-        const msg: EngineRequest = { type: 'init', skill, depth, movetime, chess960: this.chess960 }
-        this.worker!.postMessage(msg)
+        this.resolveReady = resolve
       })
     } else {
-      this.worker = null
       this.ready = Promise.resolve()
+      this.readyAcknowledged = true
     }
   }
 
+  private handleMessage(event: MessageEvent<EngineResponse>) {
+    const message = event.data
+    if (!message || typeof message !== 'object') return
+
+    switch (message.type) {
+      case 'ready':
+        this.handleReady()
+        break
+      case 'bestmove':
+        this.handleBestMove(message)
+        break
+      case 'error':
+        this.handleError(message)
+        break
+    }
+  }
+
+  private handleReady() {
+    if (this.readyAcknowledged) return
+    this.readyAcknowledged = true
+    this.resolveReady?.()
+    this.resolveReady = undefined
+    this.sendPresetOptions()
+  }
+
+  private handleBestMove(message: BestMoveResponse) {
+    if (!this.pendingMove) return
+    const { from, to, san } = message
+    this.pendingMove.resolve({ from, to, san })
+    this.pendingMove = null
+  }
+
+  private handleError(message: ErrorResponse) {
+    if (!this.pendingMove) return
+    const err = new EngineRequestError(message.message, message.code)
+    this.pendingMove.reject(err)
+    this.pendingMove = null
+  }
+
+  private sendPresetOptions() {
+    if (!this.worker) return
+    const { skill, depth, movetime } = this.preset
+    const payload: EngineRequest = { type: 'setoptions', skill, depth, movetime }
+    this.worker.postMessage(payload)
+  }
+
+  private postMessage(payload: EngineRequest) {
+    if (!this.worker) return
+    this.worker.postMessage(payload)
+  }
+
   async bestMove(fen: string): Promise<BestMoveResult> {
-    await this.ready
+    if (!this.readyAcknowledged) {
+      await this.ready
+    }
+
     if (!this.worker) {
-      // Fallback: pick a random legal move synchronously
       const chess = new Chess(fen)
       const moves = chess.moves({ verbose: true })
-      const m = moves[Math.floor(Math.random() * moves.length)]
-      if (!m) throw new Error('No legal moves')
-      return { from: m.from, to: m.to, san: m.san }
-    }
-    return new Promise(resolve => {
-      this.worker!.onmessage = (e: MessageEvent<EngineResponse>) => {
-        const d = e.data
-        if (d.type === 'bestmove') {
-          resolve({ from: d.from, to: d.to, san: d.san })
-        }
+      const choice = moves[Math.floor(Math.random() * moves.length)]
+      if (!choice) {
+        throw new EngineRequestError('No legal moves available', 'NO_MOVE')
       }
-      const msg: EngineRequest = { type: 'bestmove', fen }
-      this.worker!.postMessage(msg)
+      return { from: choice.from, to: choice.to, san: choice.san }
+    }
+
+    if (this.pendingMove) {
+      const err = new EngineRequestError('Engine request already in progress', 'IN_PROGRESS')
+      return Promise.reject(err)
+    }
+
+    return new Promise<BestMoveResult>((resolve, reject) => {
+      this.pendingMove = { resolve, reject }
+      this.postMessage({ type: 'bestmove', fen })
     })
   }
 
   async newGame(): Promise<void> {
-    await this.ready
-    if (!this.worker) return
-    this.worker.postMessage({ type: 'newgame' } satisfies EngineRequest)
+    if (!this.readyAcknowledged) {
+      await this.ready
+    }
+
+    if (this.pendingMove) {
+      const err = new EngineRequestError('Best move request cancelled by new game', 'CANCELLED')
+      this.pendingMove.reject(err)
+      this.pendingMove = null
+    }
+
+    this.postMessage({ type: 'newgame' })
   }
 }

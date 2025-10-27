@@ -1,5 +1,5 @@
 import { describe, it, expect } from 'vitest'
-import { Engine, PRESETS } from './engine'
+import { Engine } from './engine'
 import { Chess } from 'chess.js'
 
 /**
@@ -13,16 +13,14 @@ const START_FEN = new Chess().fen()
 
 describe('Engine integration', () => {
   it('emits ready and accepts commands', async () => {
-    const engine = new Engine()
+    const engine = new Engine('Casual')
     await engine.ready
-    await engine.setDifficulty('Casual') // should not throw
     await engine.newGame()
   })
 
   it('returns a legal bestmove for START position', async () => {
-    const engine = new Engine()
+    const engine = new Engine('Casual')
     await engine.ready
-    await engine.setDifficulty('Casual')
     const best = await engine.bestMove(START_FEN)
     expect(best).toBeTruthy()
     const c = new Chess(START_FEN)
