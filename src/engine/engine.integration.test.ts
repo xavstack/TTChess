@@ -43,7 +43,7 @@ describe('Engine integration', () => {
     const STALEMATE_FEN = '7k/5Q2/7K/8/8/8/8/8 b - - 0 1' // no legal moves for black
     const engine = new Engine()
     await engine.ready
-    let err: any = null
+    let err: unknown = null
     try {
       await engine.bestMove(STALEMATE_FEN)
     } catch (e) {

@@ -5,7 +5,7 @@ type PostedMessage = { type: string; [key: string]: unknown }
 
 class MockWorker {
   static instances: MockWorker[] = []
-  public onmessage: ((event: MessageEvent<any>) => void) | null = null
+  public onmessage: ((event: MessageEvent<unknown>) => void) | null = null
   public posted: PostedMessage[] = []
 
   constructor() {
@@ -16,8 +16,8 @@ class MockWorker {
     this.posted.push(message)
   }
 
-  emit(data: any) {
-    this.onmessage?.({ data } as MessageEvent<any>)
+  emit(data: unknown) {
+    this.onmessage?.({ data } as MessageEvent<unknown>)
   }
 
   terminate() {

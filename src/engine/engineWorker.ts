@@ -7,7 +7,6 @@ const ctx: DedicatedWorkerGlobalScope = self as unknown as DedicatedWorkerGlobal
 let skill = 5
 let depth = 6
 let movetime = 300
-let currentPosition = new Chess()
 let readySent = false
 
 type VerboseMove = ReturnType<Chess['moves']>[number]
@@ -105,7 +104,7 @@ function handleSetOptions(message: Extract<EngineRequest, { type: 'setoptions' }
 }
 
 function handleNewGame() {
-  currentPosition = new Chess()
+  // Reset internal state (no-op for heuristic engine but keeps parity with contract)
 }
 
 function selectMove(chess: Chess): VerboseMove | null {
@@ -150,8 +149,6 @@ function handleBestMove(message: Extract<EngineRequest, { type: 'bestmove' }>) {
     } satisfies EngineResponse)
     return
   }
-
-  currentPosition = chess
 
   const thinkTime = Math.max(0, Math.min(movetime, 2000)) + Math.floor(depth * 5)
   if (thinkTime > 0) {

@@ -78,3 +78,7 @@ Acceptance (M6):
 - Variants selectable and playable (Std+960 vs AI; others human vs human)
 - Move list streams correctly; board shows coordinates; theming selectable
 - Aids render from worker; clocks usable with flip/hotkey; piece sets switchable
+
+## Backlog
+- [ ] Lighthouse PWA pass (run locally)
+- [ ] Game variants polish/fixes (phase 2 rules, AI availability)

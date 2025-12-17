@@ -2,7 +2,7 @@ import { beforeEach, describe, expect, it, vi } from 'vitest'
 
 type WorkerScope = {
   postMessage: ReturnType<typeof vi.fn>
-  onmessage: ((event: { data: any }) => void) | null
+  onmessage: ((event: { data: unknown }) => void) | null
   setTimeout: typeof setTimeout
   clearTimeout: typeof clearTimeout
   console: Console
@@ -11,16 +11,16 @@ type WorkerScope = {
 
 function createWorkerScope(): WorkerScope {
   const postMessage = vi.fn()
-  const scope: any = {
+  const scope: Partial<WorkerScope> = {
     postMessage,
     onmessage: null,
     setTimeout,
     clearTimeout,
     console: { error: vi.fn(), warn: vi.fn(), info: vi.fn(), log: vi.fn(), debug: vi.fn() },
   }
-  scope.self = scope
+  scope.self = scope as WorkerScope
   vi.stubGlobal('self', scope)
-  vi.stubGlobal('console', scope.console)
+  vi.stubGlobal('console', scope.console as Console)
   return scope as WorkerScope
 }
 

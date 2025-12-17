@@ -27,7 +27,11 @@ export function ChessBoard({ playerNames }: ChessBoardProps): JSX.Element {
   const { chess, selected, legalTargets, selectSquare, makeMove, boardVersion, flipped, showCoordinates, showAids, aids, pieceSet } =
     useGameStore()
 
-  const board = useMemo(() => chess.board(), [chess, boardVersion])
+  const board = useMemo(() => {
+    // boardVersion forces a rerender when move history mutates the same Chess instance
+    void boardVersion
+    return chess.board()
+  }, [chess, boardVersion])
 
   return (
     <div className="board-container">

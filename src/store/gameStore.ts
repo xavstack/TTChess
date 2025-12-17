@@ -203,7 +203,7 @@ export const useGameStore = create<StoreState>((set, get) => {
     },
     pieceSet: ((): PieceSet => {
       const saved = localStorage.getItem('ttc_piece_set_v1') as PieceSet | null
-      return saved || 'cburnett'
+      return saved || 'merida'
     })(),
     setPieceSet: (pieceSet: PieceSet) => {
       localStorage.setItem('ttc_piece_set_v1', pieceSet)

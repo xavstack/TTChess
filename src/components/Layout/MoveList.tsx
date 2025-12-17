@@ -14,6 +14,7 @@ export default function MoveList({ isCollapsed = false, onToggle }: MoveListProp
   const [jumpToMove, setJumpToMove] = useState<number | null>(null)
 
   const moves = useMemo(() => {
+    void boardVersion
     const history = chess.history({ verbose: true })
     const pairs: Array<{ white: string; black?: string; moveNumber: number }> = []
     

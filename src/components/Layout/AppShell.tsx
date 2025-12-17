@@ -279,7 +279,19 @@ export function AppShell({ children }: { children: React.ReactNode }): JSX.Eleme
         <>
         <div className="font-semibold mb-2 text-sm md:text-base mt-4">Avatar</div>
         <div className="mt-auto space-y-2">
-          <img src="/clease.png" alt="avatar" className="w-full rounded-md border" onError={(e) => { (e.target as HTMLImageElement).style.display = 'none' }} />
+          <img
+            src="/clease.png"
+            alt="Avatar"
+            className="w-full rounded-md border object-contain max-h-48 bg-white/60 dark:bg-black/30"
+            onError={e => {
+              const el = e.target as HTMLImageElement
+              if (!el.dataset.fallback) {
+                el.dataset.fallback = 'true'
+                el.src =
+                  'data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="300" height="240"><rect width="100%" height="100%" fill="%23f1f5f9"/><text x="50%" y="50%" dominant-baseline="middle" text-anchor="middle" fill="%237a7a7a" font-family="Arial" font-size="20">Avatar</text></svg>'
+              }
+            }}
+          />
           <div className="text-xs md:text-sm opacity-70 mb-1">Trash Talk</div>
           <div className="rounded-md border p-2 md:p-3 min-h-[48px] md:min-h-[64px] bg-white dark:bg-black text-xs md:text-sm">
             {lastTaunt ?? '…'}
