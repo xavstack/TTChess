@@ -1,5 +1,6 @@
 import { Chess } from 'chess.js'
 import EngineWorker from './engineWorker.ts?worker'
+import StockfishWorker from './stockfishWorker.ts?worker'
 import type {
   BestMoveResponse,
   BestMoveResult,
@@ -8,6 +9,7 @@ import type {
   EngineRequest,
   EngineResponse,
   ErrorResponse,
+  EngineSource,
 } from './types'
 
 export type { Difficulty, BestMoveResult }
@@ -35,31 +37,54 @@ type PendingMove = {
   reject: (reason: unknown) => void
 }
 
+type WorkerKind = 'stockfish' | 'heuristic'
+
+function createWorker(source: EngineSource): { worker: Worker | null; kind: WorkerKind | null } {
+  const attempts: Array<{ kind: WorkerKind; factory: () => Worker }> = []
+  if (source !== 'heuristic') {
+    attempts.push({ kind: 'stockfish', factory: () => new (StockfishWorker as unknown as new () => Worker)() })
+  }
+  if (source !== 'stockfish') {
+    attempts.push({ kind: 'heuristic', factory: () => new (EngineWorker as unknown as new () => Worker)() })
+  }
+
+  for (const attempt of attempts) {
+    try {
+      const worker = attempt.factory()
+      return { worker, kind: attempt.kind }
+    } catch {
+      // try next
+    }
+  }
+
+  return { worker: null, kind: null }
+}
+
 export class Engine {
-  public readonly ready: Promise<void>
+  public ready: Promise<void>
 
   private readonly preset: EnginePreset
+  private readonly source: EngineSource
   private worker: Worker | null
+  private workerKind: WorkerKind | null
   private readonly handleMessageBound: (event: MessageEvent<EngineResponse>) => void
   private resolveReady?: () => void
   private readyAcknowledged = false
   private pendingMove: PendingMove | null = null
 
-  constructor(preset: Difficulty = 'Casual', _opts?: { chess960?: boolean }) {
+  constructor(preset: Difficulty = 'Casual', opts?: { chess960?: boolean; source?: EngineSource }) {
     const presetConfig = PRESETS[preset]
     if (!presetConfig) {
       throw new Error(`Unknown difficulty preset "${preset}"`)
     }
 
     this.preset = presetConfig
+    this.source = opts?.source ?? 'auto'
     this.handleMessageBound = this.handleMessage.bind(this)
 
-    try {
-      this.worker = new (EngineWorker as unknown as new () => Worker)()
-    } catch {
-      this.worker = null
-    }
-
+    const { worker, kind } = createWorker(this.source)
+    this.worker = worker
+    this.workerKind = kind
     if (this.worker) {
       this.worker.onmessage = this.handleMessageBound
       this.ready = new Promise(resolve => {
@@ -104,6 +129,19 @@ export class Engine {
   }
 
   private handleError(message: ErrorResponse) {
+    if (message.code === 'INIT_FAILED' && this.workerKind === 'stockfish') {
+      this.readyAcknowledged = true
+      this.resolveReady?.()
+      this.resolveReady = undefined
+      if (this.pendingMove) {
+        const err = new EngineRequestError(message.message, message.code)
+        this.pendingMove.reject(err)
+        this.pendingMove = null
+      }
+      this.swapToHeuristic()
+      return
+    }
+
     if (!this.pendingMove) return
     const err = new EngineRequestError(message.message, message.code)
     this.pendingMove.reject(err)
@@ -120,6 +158,28 @@ export class Engine {
   private postMessage(payload: EngineRequest) {
     if (!this.worker) return
     this.worker.postMessage(payload)
+  }
+
+  private swapToHeuristic() {
+    try {
+      this.worker?.terminate?.()
+    } catch {
+      // ignore
+    }
+    const { worker, kind } = createWorker('heuristic')
+    this.worker = worker
+    this.workerKind = kind
+    this.readyAcknowledged = false
+    this.pendingMove = null
+    if (this.worker) {
+      this.worker.onmessage = this.handleMessageBound
+      this.ready = new Promise(resolve => {
+        this.resolveReady = resolve
+      })
+    } else {
+      this.readyAcknowledged = true
+      this.ready = Promise.resolve()
+    }
   }
 
   async bestMove(fen: string): Promise<BestMoveResult> {

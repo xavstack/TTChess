@@ -17,6 +17,8 @@ export type EngineResponse = ReadyResponse | BestMoveResponse | ErrorResponse
 
 export type Difficulty = 'Beginner' | 'Casual' | 'Challenging' | 'Hard' | 'Insane'
 
+export type EngineSource = 'auto' | 'stockfish' | 'heuristic'
+
 export interface EnginePreset {
   skill: number
   depth: number

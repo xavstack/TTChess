@@ -4,6 +4,7 @@ import { selectTrashTalk, type EffectiveTone } from '../trashTalk/selector'
 import { speak, cancelSpeech } from '../trashTalk/tts'
 import { toDatasetPiece } from '../utils/pieces'
 import { Engine, type Difficulty } from '../engine/engine'
+import type { EngineSource } from '../engine/types'
 import { createRules, type Variant } from '../engine/rulesEngine'
 import { AidsEngine, type GameplayAids } from '../engine/aidsEngine'
 import type { PieceSet } from '../utils/pieceSets'
@@ -27,6 +28,7 @@ type StoreState = {
   tone: EffectiveTone
   boardVersion: number
   difficulty: Difficulty
+  engineSource: EngineSource
   engine: Engine
   flipped: boolean
   timeWhiteMs: number
@@ -52,6 +54,7 @@ type StoreState = {
   engineMove: () => Promise<void>
   setTone: (tone: EffectiveTone) => void
   setDifficulty: (d: Difficulty) => void
+  setEngineSource: (source: EngineSource) => void
   toggleFlip: () => void
   exportPgn: () => string
   importPgn: (text: string) => void
@@ -118,7 +121,11 @@ export const useGameStore = create<StoreState>((set, get) => {
         ? (saved as Difficulty)
         : 'Casual'
     })(),
-    engine: new Engine('Casual'),
+    engineSource: ((): EngineSource => {
+      const saved = localStorage.getItem('ttc_engine_source_v1')
+      return saved === 'stockfish' || saved === 'heuristic' ? (saved as EngineSource) : 'auto'
+    })(),
+    engine: new Engine('Casual', { source: 'auto' }),
     flipped: false,
     timeWhiteMs: INITIAL_TIME_MS,
     timeBlackMs: INITIAL_TIME_MS,
@@ -134,7 +141,10 @@ export const useGameStore = create<StoreState>((set, get) => {
       const engineAvailable = v === 'standard' || v === 'chess960'
       // Recreate engine with chess960 flag when needed (per UCI docs, Chess960 has special castling rules)
       const currentDifficulty = get().difficulty
-      const engine = new Engine(currentDifficulty, { chess960: v === 'chess960' })
+      const engine = new Engine(currentDifficulty, {
+        chess960: v === 'chess960',
+        source: get().engineSource,
+      })
       engine.newGame().catch(() => {})
       set({
         variant: v,
@@ -214,9 +224,20 @@ export const useGameStore = create<StoreState>((set, get) => {
     setDifficulty: d => {
       localStorage.setItem('ttc_difficulty_v1', d)
       const v = get().variant
-      const engine = new Engine(d, { chess960: v === 'chess960' })
+      const engine = new Engine(d, {
+        chess960: v === 'chess960',
+        source: get().engineSource,
+      })
       engine.newGame().catch(() => {})
       set({ difficulty: d, engine })
+    },
+    setEngineSource: source => {
+      localStorage.setItem('ttc_engine_source_v1', source)
+      const v = get().variant
+      const d = get().difficulty
+      const engine = new Engine(d, { chess960: v === 'chess960', source })
+      engine.newGame().catch(() => {})
+      set({ engineSource: source, engine })
     },
     toggleFlip: () => set(s => ({ flipped: !s.flipped })),
     // Pause/unpause with P key: when paused, activeSide becomes null but we keep who was active in localStorage

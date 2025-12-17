@@ -26,6 +26,13 @@ class MockWorker {
 }
 
 vi.mock('./engineWorker.ts?worker', () => ({ default: MockWorker }))
+vi.mock('./stockfishWorker.ts?worker', () => ({
+  default: class StockfishMockWorker {
+    constructor() {
+      throw new Error('stockfish unavailable in tests')
+    }
+  },
+}))
 
 // Import after the mock
 const { Engine } = await import('./engine')

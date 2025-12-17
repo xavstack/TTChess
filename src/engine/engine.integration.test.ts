@@ -1,6 +1,14 @@
-import { describe, it, expect } from 'vitest'
+import { describe, it, expect, vi } from 'vitest'
 import { Engine } from './engine'
 import { Chess } from 'chess.js'
+
+vi.mock('./stockfishWorker.ts?worker', () => ({
+  default: class StockfishMockWorker {
+    constructor() {
+      throw new Error('stockfish unavailable in tests')
+    }
+  },
+}))
 
 /**
  * These tests validate the engine contract behaviors:
