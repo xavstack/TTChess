@@ -280,7 +280,7 @@ export function AppShell({ children }: { children: React.ReactNode }): JSX.Eleme
         <div className="font-semibold mb-2 text-sm md:text-base mt-4">Avatar</div>
         <div className="mt-auto space-y-2">
           <img
-            src="/clease.png"
+            src={`${import.meta.env.BASE_URL}clease.png`}
             alt="Avatar"
             className="w-full rounded-md border object-contain max-h-48 bg-white/60 dark:bg-black/30"
             onError={e => {

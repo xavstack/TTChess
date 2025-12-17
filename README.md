@@ -68,3 +68,10 @@ React + Vite + TypeScript; Zustand; chess.js; Stockfish WASM (Web Worker); Tailw
 - Format: `npm run format`
 
 See `PLAN.md`, `TRACK.md`, `DECISIONS.md`, and `CONTRIBUTING.md` for more. For file locations, consult CODEBASE_REVIEW.md.
+
+## Known Issues (Debug List)
+
+1. **Difficulty Levels**: Heuristic engine difficulty gradient needs further calibration. Higher presets (Hard/Insane) may still be too weak compared to Stockfish.
+2. **Piece Sets**: Piece set selection may require page refresh to fully apply visual changes in some browsers.
+3. **Avatar Display**: Avatar image path resolution may fail on some deployment configurations; fallback SVG should display.
+4. **Game Variants**: Variants beyond Standard and Chess960 (King of the Hill, Three Check, Horde) are human-vs-human only and use standard move rules as placeholder implementations. Full variant rule enforcement is planned for a future phase.

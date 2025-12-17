@@ -153,6 +153,11 @@ export const useGameStore = create<StoreState>((set, get) => {
         isEngineAvailable: engineAvailable,
         boardVersion: Math.random(),
         activeSide: null,
+        selected: null,
+        legalTargets: [],
+        lastTaunt: null,
+        timeWhiteMs: INITIAL_TIME_MS,
+        timeBlackMs: INITIAL_TIME_MS,
       })
       clearAids()
       if (get().showAids) {
@@ -207,7 +212,7 @@ export const useGameStore = create<StoreState>((set, get) => {
     })(),
     setPieceSet: (pieceSet: PieceSet) => {
       localStorage.setItem('ttc_piece_set_v1', pieceSet)
-      set({ pieceSet })
+      set({ pieceSet, boardVersion: Math.random() })
     },
     tauntEngineMoves: ((): boolean => {
       const saved = localStorage.getItem('ttc_taunt_engine_moves_v1')

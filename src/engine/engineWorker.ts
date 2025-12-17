@@ -81,7 +81,9 @@ function evaluateMove(chess: Chess, move: VerboseMove, s: number, searchDepth: n
     score += lookahead * 0.8
   }
 
-  const noise = Math.random() * Math.max(5, 60 - s * 2)
+  // Reduce noise dramatically at higher skill levels
+  // Beginner: up to 50 noise, Casual: up to 30, Challenging: up to 15, Hard: up to 5, Insane: up to 1
+  const noise = Math.random() * Math.max(0, Math.min(50, 60 - s * 3))
   return score + noise
 }
 
@@ -112,16 +114,20 @@ function selectMove(chess: Chess): VerboseMove | null {
   if (moves.length === 0) return null
 
   const deadline = Date.now() + Math.max(100, Math.min(movetime, 2000))
+  // Scale search depth more aggressively: Beginner=1, Casual=2, Challenging=3, Hard=4, Insane=5-6
   const searchDepth = Math.max(
     1,
-    Math.min(4, Math.floor(depth / 5) + (skill > 12 ? 2 : skill > 8 ? 1 : 0))
+    Math.min(6, Math.floor(skill / 4) + Math.floor(depth / 3))
   )
 
   const scoredMoves = moves
     .map(move => ({ move, score: evaluateMove(chess, move, skill, searchDepth, deadline) }))
     .sort((a, b) => b.score - a.score)
 
-  const topSlice = Math.max(1, Math.floor((20 - skill) / 3) + 1)
+  // Reduce randomness significantly at higher skill levels
+  // Beginner: pick from top 5, Casual: top 3, Challenging: top 2, Hard: top 2, Insane: always best
+  const randomnessFactor = Math.max(1, Math.floor((21 - skill) / 4))
+  const topSlice = Math.min(scoredMoves.length, randomnessFactor)
   const candidates = scoredMoves.slice(0, topSlice)
   const pick = candidates[Math.floor(Math.random() * candidates.length)] ?? scoredMoves[0]
   return pick?.move ?? null
