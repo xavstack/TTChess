@@ -1,6 +1,6 @@
 import { beforeEach, describe, expect, it, vi } from 'vitest'
 
-const bestMoveMock = vi.fn<[], Promise<never>>()
+const bestMoveMock = vi.fn<() => Promise<never>>()
 
 vi.mock('../engine/engine', () => {
   class MockEngine {

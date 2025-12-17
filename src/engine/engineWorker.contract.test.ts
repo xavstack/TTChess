@@ -11,16 +11,41 @@ type WorkerScope = {
 
 function createWorkerScope(): WorkerScope {
   const postMessage = vi.fn()
+  const consoleMock: Console = {
+    assert: vi.fn(),
+    clear: vi.fn(),
+    count: vi.fn(),
+    countReset: vi.fn(),
+    debug: vi.fn(),
+    dir: vi.fn(),
+    dirxml: vi.fn(),
+    error: vi.fn(),
+    group: vi.fn(),
+    groupCollapsed: vi.fn(),
+    groupEnd: vi.fn(),
+    info: vi.fn(),
+    log: vi.fn(),
+    table: vi.fn(),
+    time: vi.fn(),
+    timeEnd: vi.fn(),
+    timeLog: vi.fn(),
+    trace: vi.fn(),
+    warn: vi.fn(),
+    timeStamp: vi.fn(),
+    Console: vi.fn() as unknown as Console['Console'],
+    profile: vi.fn(),
+    profileEnd: vi.fn(),
+  }
   const scope: Partial<WorkerScope> = {
     postMessage,
     onmessage: null,
     setTimeout,
     clearTimeout,
-    console: { error: vi.fn(), warn: vi.fn(), info: vi.fn(), log: vi.fn(), debug: vi.fn() },
+    console: consoleMock,
   }
   scope.self = scope as WorkerScope
   vi.stubGlobal('self', scope)
-  vi.stubGlobal('console', scope.console as Console)
+  vi.stubGlobal('console', consoleMock)
   return scope as WorkerScope
 }
 
