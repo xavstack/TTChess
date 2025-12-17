@@ -29,6 +29,12 @@ npm run dev
 - PWA installable & offline
 - Trash talk after each move using Web Speech API; tone Off / PG-13 / Spicy; no repeats within last 5; debounce 1.5s; cancel on next move
 
+## Engine Notes
+
+- Default engine: heuristic worker (`src/engine/engineWorker.ts`) with depth-limited search and difficulty presets.
+- Optional Stockfish: drop a valid `stockfish.wasm` and `stockfish.wasm.js` from the official project ([Stockfish repository](https://github.com/official-stockfish/Stockfish)) into `public/`. The app will attempt Stockfish first and gracefully fall back to the heuristic worker if unavailable or broken.
+- Protocol: all engines must follow `docs/engine_contract.md`.
+
 ## Settings Overview
 
 All settings are consolidated in the left collapsible sidebar:

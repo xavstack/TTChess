@@ -12,67 +12,78 @@ let readySent = false
 
 type VerboseMove = ReturnType<Chess['moves']>[number]
 
-// Simple evaluation function for move selection
-function evaluateMove(chess: Chess, move: VerboseMove, s: number): number {
-  let score = Math.random() * Math.max(1, 21 - s) // Add randomness based on skill (higher skill = less noise)
+const pieceValues: Record<string, number> = {
+  p: 100,
+  n: 320,
+  b: 330,
+  r: 500,
+  q: 900,
+  k: 0,
+}
 
-  const pieceValues: Record<string, number> = {
-    p: 1,
-    n: 3,
-    b: 3,
-    r: 5,
-    q: 9,
-    k: 0,
-  }
+function evaluatePosition(chess: Chess): number {
+  const board = chess.board()
+  let score = 0
 
-  if (move.captured) {
-    score += (pieceValues[move.captured] ?? 0) * (s / 4)
-  }
-
-  if (move.san.includes('+')) {
-    score += 3 * (s / 10)
-  }
-
-  if (move.san.includes('#')) {
-    score += 1000
-  }
-
-  const centerSquares = ['d4', 'd5', 'e4', 'e5']
-  if (centerSquares.includes(move.to) && s > 5) {
-    score += 2 * (s / 10)
-  }
-
-  const backRank = [
-    'a1',
-    'b1',
-    'c1',
-    'd1',
-    'e1',
-    'f1',
-    'g1',
-    'h1',
-    'a8',
-    'b8',
-    'c8',
-    'd8',
-    'e8',
-    'f8',
-    'g8',
-    'h8',
-  ]
-  if (backRank.includes(move.from) && s > 8) {
-    score += 1.5 * (s / 10)
-  }
-
-  if (s > 10) {
-    const testChess = new Chess(chess.fen())
-    testChess.move(move)
-    if (testChess.isCheck() && testChess.turn() === chess.turn()) {
-      score -= 5
+  for (const row of board) {
+    for (const square of row) {
+      if (!square) continue
+      const value = pieceValues[square.type] ?? 0
+      score += square.color === 'w' ? value : -value
     }
   }
 
+  // Mobility
+  const moves = chess.moves()
+  score += (moves.length * 5) * (chess.turn() === 'w' ? 1 : -1)
+
+  if (chess.isCheck()) {
+    score += chess.turn() === 'w' ? -30 : 30
+  }
+
   return score
+}
+
+function negamax(chess: Chess, depthLeft: number, alpha: number, beta: number, deadline: number): number {
+  if (Date.now() > deadline) return evaluatePosition(chess)
+  if (depthLeft === 0 || chess.isGameOver()) return evaluatePosition(chess)
+
+  let best = -Infinity
+  const moves = chess.moves({ verbose: true })
+  for (const move of moves) {
+    chess.move(move)
+    const score = -negamax(chess, depthLeft - 1, -beta, -alpha, deadline)
+    chess.undo()
+    if (score > best) best = score
+    if (score > alpha) alpha = score
+    if (alpha >= beta) break
+  }
+  return best
+}
+
+function evaluateMove(chess: Chess, move: VerboseMove, s: number, searchDepth: number, deadline: number): number {
+  let score = 0
+
+  const captureValue = move.captured ? pieceValues[move.captured] ?? 0 : 0
+  score += captureValue * (0.6 + s / 40)
+  if (move.san.includes('+')) score += 50
+  if (move.san.includes('#')) score += 5000
+
+  const centerSquares = ['d4', 'd5', 'e4', 'e5']
+  if (centerSquares.includes(move.to)) score += 10
+
+  const backRank = ['a1', 'b1', 'c1', 'd1', 'e1', 'f1', 'g1', 'h1', 'a8', 'b8', 'c8', 'd8', 'e8', 'f8', 'g8', 'h8']
+  if (backRank.includes(move.from)) score += 5
+
+  if (searchDepth > 1) {
+    const testChess = new Chess(chess.fen())
+    testChess.move(move)
+    const lookahead = -negamax(testChess, searchDepth - 1, -Infinity, Infinity, deadline)
+    score += lookahead * 0.8
+  }
+
+  const noise = Math.random() * Math.max(5, 60 - s * 2)
+  return score + noise
 }
 
 function sendReadyOnce() {
@@ -101,16 +112,20 @@ function selectMove(chess: Chess): VerboseMove | null {
   const moves = chess.moves({ verbose: true })
   if (moves.length === 0) return null
 
+  const deadline = Date.now() + Math.max(100, Math.min(movetime, 2000))
+  const searchDepth = Math.max(
+    1,
+    Math.min(4, Math.floor(depth / 5) + (skill > 12 ? 2 : skill > 8 ? 1 : 0))
+  )
+
   const scoredMoves = moves
-    .map(move => ({ move, score: evaluateMove(chess, move, skill) }))
+    .map(move => ({ move, score: evaluateMove(chess, move, skill, searchDepth, deadline) }))
     .sort((a, b) => b.score - a.score)
 
-  const randomness = Math.max(0, 20 - skill)
-  const pickIndex = Math.min(
-    scoredMoves.length - 1,
-    Math.floor(Math.random() * (randomness + 1))
-  )
-  return scoredMoves[pickIndex]?.move ?? null
+  const topSlice = Math.max(1, Math.floor((20 - skill) / 3) + 1)
+  const candidates = scoredMoves.slice(0, topSlice)
+  const pick = candidates[Math.floor(Math.random() * candidates.length)] ?? scoredMoves[0]
+  return pick?.move ?? null
 }
 
 function handleBestMove(message: Extract<EngineRequest, { type: 'bestmove' }>) {
